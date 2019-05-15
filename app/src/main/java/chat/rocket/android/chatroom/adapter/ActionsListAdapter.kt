@@ -23,7 +23,7 @@ class ActionsListAdapter(
         lateinit var action: ButtonAction
 
         private val onClickListener = View.OnClickListener {
-            actionAttachmentOnClickListener.onActionClicked(it, action)
+            actionAttachmentOnClickListener.onActionClicked(it, action, adapterPosition)
         }
 
         init {

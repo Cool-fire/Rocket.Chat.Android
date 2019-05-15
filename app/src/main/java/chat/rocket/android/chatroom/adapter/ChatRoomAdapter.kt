@@ -210,7 +210,15 @@ class ChatRoomAdapter(
     }
 
     private val actionAttachmentOnClickListener = object : ActionAttachmentOnClickListener {
-        override fun onActionClicked(view: View, action: Action) {
+        override fun onActionClicked(view: View, action: Action, adapterPosition: Int) {
+            val recyclerview: RecyclerView = view.parent.parent as RecyclerView
+            val childcount:Int = recyclerview.childCount
+            for(i in 0 until childcount){
+                if(i!=adapterPosition){
+//                    Timber.d("viewn+$i")
+                    recyclerview.getChildAt(i).visibility = View.GONE
+                }
+            }
             val temp = action as ButtonAction
             if (temp.url != null && temp.isWebView != null) {
                 if (temp.isWebView == true) {

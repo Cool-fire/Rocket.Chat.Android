@@ -300,5 +300,5 @@ class AttachmentViewHolder(
 }
 
 interface ActionAttachmentOnClickListener {
-    fun onActionClicked(view: View, action: Action)
+    fun onActionClicked(view: View, action: Action, adapterPosition: Int)
 }

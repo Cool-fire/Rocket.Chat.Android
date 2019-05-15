@@ -4,12 +4,18 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import androidx.appcompat.app.AppCompatActivity
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import chat.rocket.android.R
 import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.app_bar.*
+import org.json.JSONObject
 
 fun Context.webViewIntent(webPageUrl: String, toolbarTitle: String? = null): Intent {
     return Intent(this, WebViewActivity::class.java).apply {
@@ -25,6 +31,8 @@ private const val TOOLBAR_TITLE = "toolbar_title"
 class WebViewActivity : AppCompatActivity() {
     private lateinit var webPageUrl: String
     private var toolbarTitle: String? = ""
+    private val listenerScript: String
+        get() = """(function(){window.addEventListener('message',function(event) {  MyJSInterface.handleMyEvent(event.origin);});},false)();"""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +69,18 @@ class WebViewActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         web_view.settings.javaScriptEnabled = true
+        web_view.settings.domStorageEnabled = true
+        web_view.settings.loadWithOverviewMode = true
+        web_view.settings.useWideViewPort = true
+        web_view.webChromeClient = WebChromeClient()
+        web_view.addJavascriptInterface(WebAppInterface(), "MyJSInterface")
+
         web_view.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                view?.evaluateJavascript(listenerScript, ValueCallback {
+                    Log.d("mess", "it")
+                })
                 view_loading.hide()
             }
         }
@@ -73,5 +90,13 @@ class WebViewActivity : AppCompatActivity() {
     private fun finishActivity() {
         super.onBackPressed()
         overridePendingTransition(R.anim.hold, R.anim.slide_down)
+    }
+
+    class WebAppInterface {
+        @JavascriptInterface
+        fun handleMyEvent(jsonString: String) {
+//            val data: JSONObject = JSONObject(jsonString)
+            Log.d("mess", jsonString)
+        }
     }
 }

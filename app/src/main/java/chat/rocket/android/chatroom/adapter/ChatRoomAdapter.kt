@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
+import chat.rocket.android.chatroom.domain.botApiService
+import chat.rocket.android.chatroom.domain.botClient
+import chat.rocket.android.chatroom.domain.response
 import chat.rocket.android.chatroom.presentation.ChatRoomNavigator
 import chat.rocket.android.chatroom.uimodel.AttachmentUiModel
 import chat.rocket.android.chatroom.uimodel.BaseUiModel
@@ -20,8 +23,12 @@ import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
 import chat.rocket.core.model.isSystemMessage
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Response
 import timber.log.Timber
 import java.security.InvalidParameterException
+import javax.security.auth.callback.Callback
 
 class ChatRoomAdapter(
     private val roomId: String? = null,
@@ -216,6 +223,11 @@ class ChatRoomAdapter(
                 if (temp.isWebView == true) {
                     //TODO: Open in a configurable sizable webview
                     Timber.d("Open in a configurable sizable webview")
+                    if(temp.text == "Ok"){
+                        sendResponsetoBot("ok", "button");
+                    } else{
+                        sendResponsetoBot("cancel", "button")
+                    }
                 } else {
                     //Open in chrome custom tab
                     temp.url?.let { view.openTabbedUrl(it) }
@@ -234,6 +246,23 @@ class ChatRoomAdapter(
                 }
             }
         }
+    }
+
+    private fun sendResponsetoBot(value: String, type: String) {
+        val apiService = botClient.client.create(botApiService::class.java)
+        val responseObject = response(value,type)
+        val call = apiService.sendResponsetoBot(responseObject)
+        call.enqueue(object : retrofit2.Callback<ResponseBody>{
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                Timber.d("Call Failed")
+            }
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                Timber.d("Response Recieved")
+            }
+
+        })
+        Timber.d("reached")
     }
 
     private val actionsListener = object : BaseViewHolder.ActionsListener {

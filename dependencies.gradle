@@ -137,6 +137,7 @@ ext {
             espressoCore          : "androidx.test.espresso:espresso-core:${versions.espresso}",
             espressoIntents       : "androidx.test.espresso:espresso-intents:${versions.espresso}",
             roomTest              : "android.arch.persistence.room:testing:${versions.room}",
-            truth                 : "com.google.truth:truth:${versions.truth}"
+            truth                 : "com.google.truth:truth:${versions.truth}",
+            espressoContrib       : "com.android.support.test.espresso:espresso-contrib:2.0"
     ]
 }

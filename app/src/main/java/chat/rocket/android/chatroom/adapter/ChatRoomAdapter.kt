@@ -221,14 +221,14 @@ class ChatRoomAdapter(
 
     private val actionAttachmentOnClickListener = object : ActionAttachmentOnClickListener {
 
-        override fun onActionClicked(view: View, action: Action) {
+        override fun onActionClicked(view: View, action: Action, message: Message) {
             val temp = action as ButtonAction
             if (temp.url != null && temp.isWebView != null) {
                 if (temp.isWebView == true) {
                     //Open in a configurable sizable WebView
                     when(temp.webViewHeightRatio){
                         FULL_CONFIGURATION -> openFullWebPage(temp, roomId)
-                        COMPACT_CONFIGURATION -> openConfigurableWebPage(temp, roomId, FULL_CONFIGURATION)
+                        COMPACT_CONFIGURATION -> openConfigurableWebPage(temp, roomId, COMPACT_CONFIGURATION)
                         TALL_CONFIGURATION -> openConfigurableWebPage(temp, roomId, TALL_CONFIGURATION)
                         else -> Unit
                     }

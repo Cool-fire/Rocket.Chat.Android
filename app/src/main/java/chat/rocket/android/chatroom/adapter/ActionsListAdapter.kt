@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.inflate
+import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -13,8 +14,9 @@ import kotlinx.android.synthetic.main.item_action_button.view.*
 import timber.log.Timber
 
 class ActionsListAdapter(
-    actions: List<Action>,
-    var actionAttachmentOnClickListener: ActionAttachmentOnClickListener
+        actions: List<Action>,
+        var actionAttachmentOnClickListener: ActionAttachmentOnClickListener,
+        var message: Message
 ) : RecyclerView.Adapter<ActionsListAdapter.ViewHolder>() {
 
     var actions: List<Action> = actions
@@ -23,7 +25,7 @@ class ActionsListAdapter(
         lateinit var action: ButtonAction
 
         private val onClickListener = View.OnClickListener {
-            actionAttachmentOnClickListener.onActionClicked(it, action)
+            actionAttachmentOnClickListener.onActionClicked(it, action, message)
         }
 
         init {

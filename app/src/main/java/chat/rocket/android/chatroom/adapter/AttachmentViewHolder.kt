@@ -19,6 +19,7 @@ import chat.rocket.android.util.extensions.content
 import chat.rocket.android.util.extensions.isVisible
 import chat.rocket.android.util.extensions.openTabbedUrl
 import chat.rocket.android.util.extensions.setOnClickListener
+import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.item_message_attachment.view.*
@@ -276,6 +277,7 @@ class AttachmentViewHolder(
     }
 
     private fun bindActions(data: AttachmentUiModel) {
+        val message = data.message
         val actions = data.actions
         val alignment = data.buttonAlignment
         Timber.d("no of actions : ${actions!!.size} : $actions")
@@ -287,7 +289,7 @@ class AttachmentViewHolder(
                         "horizontal" -> LinearLayoutManager.HORIZONTAL
                         else -> LinearLayoutManager.VERTICAL //Default
                     }, false)
-            actions_list.adapter = ActionsListAdapter(actions, actionAttachmentOnClickListener)
+            actions_list.adapter = ActionsListAdapter(actions, actionAttachmentOnClickListener, message)
         }
     }
 
@@ -300,5 +302,5 @@ class AttachmentViewHolder(
 }
 
 interface ActionAttachmentOnClickListener {
-    fun onActionClicked(view: View, action: Action)
+    fun onActionClicked(view: View, action: Action, message: Message)
 }

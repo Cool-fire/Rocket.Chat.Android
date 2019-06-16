@@ -15,6 +15,7 @@ import chat.rocket.core.model.isSystemMessage
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import kotlinx.android.synthetic.main.avatar.view.*
 import kotlinx.android.synthetic.main.item_message.view.*
+import timber.log.Timber
 
 class MessageViewHolder(
     itemView: View,
@@ -33,6 +34,7 @@ class MessageViewHolder(
 
     override fun bindViews(data: MessageUiModel) {
         with(itemView) {
+            Timber.d("message ${data.message}")
             day.text = data.currentDayMarkerText
             day_marker_layout.isVisible = data.showDayMarker
 

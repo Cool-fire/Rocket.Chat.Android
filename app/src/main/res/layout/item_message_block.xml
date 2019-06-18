@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/block_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="@dimen/screen_edge_left_and_right_padding"
+    android:paddingEnd="@dimen/screen_edge_left_and_right_padding"
+    android:paddingBottom="@dimen/message_item_top_and_bottom_padding">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="56dp" />
+
+    <TextView
+        android:id="@+id/block_type"
+        style="@style/Message.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="@id/guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Fields"
+        tools:visibility="visible" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blocks_list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorAccent"
+        android:textDirection="locale"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/block_type"
+        app:layout_constraintStart_toStartOf="@id/guideline"/>
+
+    <ImageView
+        android:id="@+id/quote_bar"
+        android:layout_width="4dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/quote_vertical_gray_bar"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/blocks_list"
+        app:layout_constraintStart_toStartOf="@id/guideline"
+        app:layout_constraintTop_toBottomOf="@id/block_type"
+        tools:visibility="visible" />
+
+
+    <!--<include-->
+        <!--layout="@layout/layout_reactions"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--app:layout_constraintStart_toStartOf="@id/guideline"-->
+        <!--app:layout_constraintTop_toBottomOf="@+id/blocks_list" />-->
+
+    <include
+        layout="@layout/layout_reactions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/text_content"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/block_type" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

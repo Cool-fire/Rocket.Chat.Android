@@ -34,6 +34,7 @@ class MessageViewHolder(
 
     override fun bindViews(data: MessageUiModel) {
         with(itemView) {
+            Timber.d("message ${data.message}")
             day.text = data.currentDayMarkerText
             day_marker_layout.isVisible = data.showDayMarker
 

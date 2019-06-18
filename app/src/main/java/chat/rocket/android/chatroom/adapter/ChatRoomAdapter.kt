@@ -10,11 +10,7 @@ import chat.rocket.android.chatroom.presentation.ChatRoomNavigator
 import chat.rocket.android.chatroom.ui.bottomsheet.COMPACT_CONFIGURATION
 import chat.rocket.android.chatroom.ui.bottomsheet.FULL_CONFIGURATION
 import chat.rocket.android.chatroom.ui.bottomsheet.TALL_CONFIGURATION
-import chat.rocket.android.chatroom.uimodel.AttachmentUiModel
-import chat.rocket.android.chatroom.uimodel.BaseUiModel
-import chat.rocket.android.chatroom.uimodel.MessageReplyUiModel
-import chat.rocket.android.chatroom.uimodel.MessageUiModel
-import chat.rocket.android.chatroom.uimodel.UrlPreviewUiModel
+import chat.rocket.android.chatroom.uimodel.*
 import chat.rocket.android.chatroom.uimodel.toViewType
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.inflate
@@ -22,6 +18,7 @@ import chat.rocket.android.util.extensions.openTabbedUrl
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
+import chat.rocket.core.model.block.elements.Element
 import chat.rocket.core.model.isSystemMessage
 import timber.log.Timber
 import java.security.InvalidParameterException
@@ -43,6 +40,7 @@ class ChatRoomAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
+        Timber.d("viewtype -- ${viewType.toViewType()}")
         return when (viewType.toViewType()) {
             BaseUiModel.ViewType.MESSAGE -> {
                 val view = parent.inflate(R.layout.item_message)
@@ -80,6 +78,15 @@ class ChatRoomAdapter(
                 ) { roomName, permalink ->
                     actionSelectListener?.openDirectMessage(roomName, permalink)
                 }
+            }
+            BaseUiModel.ViewType.BLOCK -> {
+                val view = parent.inflate(R.layout.item_message_block)
+                BlockViewHolder(
+                        view,
+                        actionsListener,
+                        reactionListener,
+                        elementBlockOnClicklistener
+                )
             }
             else -> {
                 throw InvalidParameterException("TODO - implement for ${viewType.toViewType()}")
@@ -119,6 +126,8 @@ class ChatRoomAdapter(
                 holder.bind(dataSet[position] as MessageReplyUiModel)
             is AttachmentViewHolder ->
                 holder.bind(dataSet[position] as AttachmentUiModel)
+            is BlockViewHolder ->
+                holder.bind(dataSet[position] as BlockUiModel)
         }
     }
 
@@ -217,6 +226,12 @@ class ChatRoomAdapter(
             val newSize = dataSet.size
             notifyItemRangeRemoved(index, oldSize - newSize)
         }
+    }
+
+    private val elementBlockOnClicklistener = object : ElementBlockOnClicklistener {
+        override fun onElementClicked(view: View, element: Element, message: Message) {
+        }
+
     }
 
     private val actionAttachmentOnClickListener = object : ActionAttachmentOnClickListener {

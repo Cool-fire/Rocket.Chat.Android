@@ -9,6 +9,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "com.github.ben-manes.versions"
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -172,6 +173,9 @@ dependencies {
     implementation(libraries.jitsi) { transitive = true }
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    implementation "com.squareup.moshi:moshi-adapters:1.8.0"
+
 
     // Proprietary libraries
     playImplementation libraries.fcm

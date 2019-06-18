@@ -42,6 +42,7 @@ import chat.rocket.core.model.MessageType
 import chat.rocket.core.model.ReadReceipt
 import chat.rocket.core.model.attachment.Attachment
 import chat.rocket.core.model.attachment.Field
+import chat.rocket.core.model.block.Block
 import chat.rocket.core.model.isSystemMessage
 import chat.rocket.core.model.url.Url
 import kotlinx.coroutines.Dispatchers
@@ -136,6 +137,12 @@ class UiModelMapper @Inject constructor(
 
                 message.attachments?.mapNotNull { attachment ->
                     mapAttachment(message, attachment, chatRoom)
+                }?.asReversed()?.let {
+                    list.addAll(it)
+                }
+
+                message.blocks?.mapNotNull { block ->
+                    mapBlock(message, block, chatRoom)
                 }?.asReversed()?.let {
                     list.addAll(it)
                 }
@@ -362,6 +369,32 @@ class UiModelMapper @Inject constructor(
                 buttonAlignment = buttonAlignment,
                 actions = actions
             )
+        }
+    }
+
+    private fun mapBlock(message: Message, block: Block, chatRoom: ChatRoom): BaseUiModel<*> {
+        return with(block){
+            val content = stripMessageQuotes(message)
+            val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+            val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+            val permalink = messageHelper.createPermalink(message, chatRoom, false)
+
+            BlockUiModel(
+                    message = message,
+                    rawData = this,
+                    messageId = message.id,
+                    reactions = getReactions(message),
+                    preview = message.copy(message = content.message),
+                    isTemporary = !message.synced,
+                    unread = message.unread,
+                    currentDayMarkerText = dayMarkerText,
+                    showDayMarker = false,
+                    permalink = permalink,
+                    type = type,
+                    text = text,
+                    blockId = blockId,
+                    accessory = accessory,
+                    elements = elements)
         }
     }
 

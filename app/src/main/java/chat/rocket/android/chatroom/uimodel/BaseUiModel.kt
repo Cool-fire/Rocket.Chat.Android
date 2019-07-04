@@ -24,7 +24,8 @@ interface BaseUiModel<out T> {
         SYSTEM_MESSAGE(1),
         URL_PREVIEW(2),
         ATTACHMENT(3),
-        MESSAGE_REPLY(4)
+        MESSAGE_REPLY(4),
+        BLOCK(5)
     }
 }
 

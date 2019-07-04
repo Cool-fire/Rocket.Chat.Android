@@ -42,6 +42,9 @@ import chat.rocket.core.model.MessageType
 import chat.rocket.core.model.ReadReceipt
 import chat.rocket.core.model.attachment.Attachment
 import chat.rocket.core.model.attachment.Field
+import chat.rocket.core.model.block.ActionBlock
+import chat.rocket.core.model.block.Block
+import chat.rocket.core.model.block.SectionBlock
 import chat.rocket.core.model.isSystemMessage
 import chat.rocket.core.model.url.Url
 import kotlinx.coroutines.Dispatchers
@@ -143,6 +146,11 @@ class UiModelMapper @Inject constructor(
                     list.addAll(it)
                 }
 
+                message.blocks?.mapNotNull { block ->
+                    mapBlock(message, block, chatRoom)
+                }?.asReversed()?.let {
+                    list.addAll(it)
+                }
                 mapMessage(message, chatRoom, showDateAndHour).let {
                     if (list.isNotEmpty()) {
                         it.preview = list.first().preview
@@ -235,6 +243,13 @@ class UiModelMapper @Inject constructor(
                     }
                 }
 
+                message.blocks?.mapNotNull { block ->
+                    val block = mapBlock(message, block, chatRoom)
+                    block?.let {
+                        list.add(block)
+                    }
+                }
+
                 message.urls?.forEach {
                     val url = mapUrl(message, it, chatRoom)
                     url?.let {
@@ -311,6 +326,87 @@ class UiModelMapper @Inject constructor(
         return UrlPreviewUiModel(message, url, message.id, title, hostname, description, thumb,
             getReactions(message), preview = message.copy(message = url.url), unread = message.unread,
             showDayMarker = false, currentDayMarkerText = dayMarkerText, permalink = permalink)
+    }
+
+
+    private fun mapBlock(
+            message: Message,
+            block: Block,
+            chatRoom: ChatRoom): BaseUiModel<*>? {
+
+
+        return when (block.type) {
+            "section" -> {
+                val temp = block as SectionBlock
+                mapSectionBlock(message, temp, chatRoom)
+            }
+            "actions" -> {
+                val temp = block as ActionBlock
+                mapActionBlock(message, temp, chatRoom)
+            }
+            else -> null
+        }
+
+    }
+
+    private fun mapActionBlock(
+            message: Message,
+            block: ActionBlock,
+            chatRoom: ChatRoom
+    ): BaseUiModel<*> {
+        return with(block){
+            val content = stripMessageQuotes(message)
+            val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+            val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+            val permalink = messageHelper.createPermalink(message, chatRoom, false)
+
+            BlockUiModel(
+                    message = message,
+                    rawData = this,
+                    messageId = message.id,
+                    reactions = getReactions(message),
+                    preview = message.copy(message = content.message),
+                    isTemporary = !message.synced,
+                    unread = message.unread,
+                    currentDayMarkerText = dayMarkerText,
+                    showDayMarker = false,
+                    permalink = permalink,
+                    type = type,
+                    text = null,
+                    blockId = blockId,
+                    accessory = null,
+                    elements = elements)
+        }
+    }
+
+    private fun mapSectionBlock(
+            message: Message,
+            block: SectionBlock,
+            chatRoom: ChatRoom
+    ): BaseUiModel<*> {
+        return with(block){
+            val content = stripMessageQuotes(message)
+            val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+            val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+            val permalink = messageHelper.createPermalink(message, chatRoom, false)
+
+            BlockUiModel(
+                    message = message,
+                    rawData = this,
+                    messageId = message.id,
+                    reactions = getReactions(message),
+                    preview = message.copy(message = content.message),
+                    isTemporary = !message.synced,
+                    unread = message.unread,
+                    currentDayMarkerText = dayMarkerText,
+                    showDayMarker = false,
+                    permalink = permalink,
+                    type = type,
+                    text = text,
+                    blockId = blockId,
+                    accessory = accessory,
+                    elements = null)
+        }
     }
 
     private fun mapAttachment(

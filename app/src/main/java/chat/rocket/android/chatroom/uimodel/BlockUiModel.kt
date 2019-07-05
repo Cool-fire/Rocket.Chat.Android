@@ -1,5 +1,7 @@
 package chat.rocket.android.chatroom.uimodel
 
+import chat.rocket.android.R
+import chat.rocket.android.util.extensions.isNotNullNorEmpty
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.block.Block
 import chat.rocket.core.model.block.elements.Element
@@ -27,5 +29,11 @@ data class BlockUiModel(
     override val viewType: Int
         get() = BaseUiModel.ViewType.BLOCK.viewType
     override val layoutId: Int
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = R.layout.item_message_block
+    val hasText: Boolean
+        get() = text?.text.isNotNullNorEmpty()
+    val hasAccesory: Boolean
+        get() = accessory != null
+    val hasElements: Boolean
+        get() = elements != null && elements.isNotEmpty()
 }

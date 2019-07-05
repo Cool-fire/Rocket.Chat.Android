@@ -2,11 +2,13 @@ package chat.rocket.android.chatroom.adapter
 
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.core.model.block.elements.ButtonElement
 import chat.rocket.core.model.block.elements.Element
 import kotlinx.android.synthetic.main.item_message_block.view.*
+import timber.log.Timber
 
 class BlockViewHolder(
         itemView: View,
@@ -36,6 +38,22 @@ class BlockViewHolder(
                     }
                 }
             }
+
+            //elements
+            Timber.d("elements - $data")
+            Timber.d("elements - ${data.hasElements}")
+            elements_list.isVisible = data.hasElements
+            if(data.hasElements) {
+                bindElements(data)
+            }
+        }
+    }
+
+    private fun bindElements(data: BlockUiModel) {
+        Timber.d("elements - ${data.elements}")
+        with(itemView) {
+            elements_list.layoutManager = LinearLayoutManager(itemView.context)
+            elements_list.adapter = data.elements?.let { ElementsListAdapter(it) }
         }
     }
 
@@ -60,4 +78,7 @@ class BlockViewHolder(
         fun onButtonElementClicked(view: View, element: Element)
     }
 
+    interface BaseElementViewHolder {
+        fun bindElement(data : Element)
+    }
 }

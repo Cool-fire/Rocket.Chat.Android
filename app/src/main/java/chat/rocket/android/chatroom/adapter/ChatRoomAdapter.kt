@@ -19,7 +19,6 @@ import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
 import chat.rocket.core.model.block.elements.ButtonElement
-import chat.rocket.core.model.block.elements.Element
 import chat.rocket.core.model.isSystemMessage
 import timber.log.Timber
 import java.security.InvalidParameterException
@@ -228,12 +227,12 @@ class ChatRoomAdapter(
         }
     }
 
-    private val accessoryElementOnClicklistener = object : BlockViewHolder.AccessoryElementOnClicklistener {
+    private val accessoryElementOnClicklistener = object : AccessoryElementOnClicklistener {
 
-        override fun onButtonElementClicked(view: View, element: Element) {
-            val buttonElement = element as ButtonElement
-            Timber.d("button clicked")
-
+        override fun onButtonElementClicked(view: View, element: ButtonElement) {
+            if(element.url != null) {
+                element.url?.let { view.openTabbedUrl(it) }
+            }
         }
 
     }

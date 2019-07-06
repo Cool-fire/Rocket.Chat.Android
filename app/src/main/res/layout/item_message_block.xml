@@ -33,21 +33,16 @@
         tools:visibility="visible" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/accessoryButton"
+        android:id="@+id/accessory_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Block.Section.Button"
         app:layout_constraintStart_toStartOf="@id/guideline"
         app:layout_constraintTop_toBottomOf="@id/section_text"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
         android:visibility="gone"
-        android:padding="12dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="16sp"
         android:textColor="@android:color/black"
-        android:textAllCaps="false"
         app:strokeColor="@color/button_stroke"
         app:cornerRadius="5dp"
         app:rippleColor="@color/ripple_background"
@@ -64,7 +59,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guideline"
-        app:layout_constraintTop_toBottomOf="@id/accessoryButton" />
+        app:layout_constraintTop_toBottomOf="@id/accessory_button" />
 
     <include
         layout="@layout/layout_reactions"

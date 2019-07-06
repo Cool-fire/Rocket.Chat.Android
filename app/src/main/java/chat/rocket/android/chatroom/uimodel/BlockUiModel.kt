@@ -31,7 +31,7 @@ data class BlockUiModel(
     override val layoutId: Int
         get() = R.layout.item_message_block
     val hasText: Boolean
-        get() = text?.text.isNotNullNorEmpty()
+        get() = text != null
     val hasAccesory: Boolean
         get() = accessory != null
     val hasElements: Boolean

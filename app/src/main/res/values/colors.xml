@@ -72,4 +72,6 @@
     <!-- Block Colors -->
     <color name="button_stroke">#AFADAF</color>
     <color name="ripple_background">#AFADAF</color>
+    <color name="button_primary">#268366</color>
+    <color name="button_danger">#e01d59</color>
 </resources>

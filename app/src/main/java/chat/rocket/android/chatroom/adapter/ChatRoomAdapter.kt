@@ -3,6 +3,7 @@ package chat.rocket.android.chatroom.adapter
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
@@ -15,6 +16,8 @@ import chat.rocket.android.chatroom.uimodel.toViewType
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.openTabbedUrl
+import chat.rocket.core.internal.model.elementPayload.ButtonElementPayload
+import chat.rocket.core.internal.model.elementPayload.RequestPayload
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
@@ -229,12 +232,63 @@ class ChatRoomAdapter(
 
     private val accessoryElementOnClicklistener = object : AccessoryElementOnClicklistener {
 
-        override fun onButtonElementClicked(view: View, element: ButtonElement) {
+        override fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel) {
+            Timber.d("Button Clicked")
             if(element.url != null) {
                 element.url?.let { view.openTabbedUrl(it) }
+            } else {
+                val message = data.message
+                val msgId = data.messageId
+                val blockId = data.blockId
+                val botId = message.sender?.id ?: ""
+                val text = element.text
+                val value = element.value
+                val actionId = element.actionId
+                val roomId = message.roomId
+
+                val buttonElementPayload = ButtonElementPayload("button",blockId,actionId,text,value)
+                val requestPayload = RequestPayload(msgId, roomId, botId, listOf(buttonElementPayload))
+
+
+                if(element.confirm != null) {
+                    showConfirmationDialog(view, element, requestPayload)
+                } else {
+                    actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+                }
             }
         }
 
+    }
+
+    private fun showConfirmationDialog(view: View, element: ButtonElement, requestPayload: RequestPayload) {
+        lateinit var title : String
+        lateinit var message : String
+        lateinit var confirmText : String
+        lateinit var denyText : String
+
+        val confirm = element.confirm
+        confirm?.also {
+            title = it.title.text
+            message = it.text.text
+            confirmText = it.confirm.text
+            denyText = it.deny.text
+        }
+
+        val builder = AlertDialog.Builder(view.context)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setCancelable(true)
+
+        builder.setPositiveButton(confirmText) { dialog, which ->
+            actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+        }
+
+        builder.setNegativeButton(denyText) { dialog, which ->
+            dialog.dismiss()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private val actionAttachmentOnClickListener = object : ActionAttachmentOnClickListener {
@@ -389,5 +443,7 @@ class ChatRoomAdapter(
         fun openFullWebPage(roomId: String, url: String)
 
         fun openConfigurableWebPage(roomId: String, url: String, heightRatio: String)
+
+        fun sendRequestPayload(type: String, requestPayload: RequestPayload)
     }
 }

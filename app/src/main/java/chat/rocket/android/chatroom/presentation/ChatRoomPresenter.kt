@@ -47,30 +47,12 @@ import chat.rocket.common.model.SimpleUser
 import chat.rocket.common.model.UserStatus
 import chat.rocket.common.model.roomTypeOf
 import chat.rocket.common.util.ifNull
+import chat.rocket.core.internal.model.elementPayload.RequestPayload
 import chat.rocket.core.internal.realtime.setTypingStatus
 import chat.rocket.core.internal.realtime.socket.model.State
 import chat.rocket.core.internal.realtime.subscribeTypingStatus
 import chat.rocket.core.internal.realtime.unsubscribe
-import chat.rocket.core.internal.rest.chatRoomRoles
-import chat.rocket.core.internal.rest.commands
-import chat.rocket.core.internal.rest.deleteMessage
-import chat.rocket.core.internal.rest.getMembers
-import chat.rocket.core.internal.rest.history
-import chat.rocket.core.internal.rest.joinChat
-import chat.rocket.core.internal.rest.markAsRead
-import chat.rocket.core.internal.rest.messages
-import chat.rocket.core.internal.rest.pinMessage
-import chat.rocket.core.internal.rest.reportMessage
-import chat.rocket.core.internal.rest.runCommand
-import chat.rocket.core.internal.rest.searchMessages
-import chat.rocket.core.internal.rest.sendMessage
-import chat.rocket.core.internal.rest.spotlight
-import chat.rocket.core.internal.rest.starMessage
-import chat.rocket.core.internal.rest.toggleReaction
-import chat.rocket.core.internal.rest.unpinMessage
-import chat.rocket.core.internal.rest.unstarMessage
-import chat.rocket.core.internal.rest.updateMessage
-import chat.rocket.core.internal.rest.uploadFile
+import chat.rocket.core.internal.rest.*
 import chat.rocket.core.model.ChatRoom
 import chat.rocket.core.model.ChatRoomRole
 import chat.rocket.core.model.Command
@@ -1409,5 +1391,20 @@ class ChatRoomPresenter @Inject constructor(
 
     fun openConfigurableWebPage(roomId: String, url: String, heightRatio: String){
         navigator.toConfigurableWebPage(roomId, url, heightRatio)
+    }
+
+    fun sendRequestPayload(type: String, requestPayload: RequestPayload) {
+        launchUI(strategy) {
+            try {
+                client.sendRequestPayload(type, requestPayload)
+            } catch (ex: Exception) {
+                Timber.e(ex, "Error sending request payload")
+                ex.message?.let {
+                    view.showMessage(it)
+                }.ifNull {
+                    view.showGenericErrorMessage()
+                }
+            }
+        }
     }
 }

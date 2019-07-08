@@ -88,6 +88,7 @@ import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.util.extensions.ui
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.roomTypeOf
+import chat.rocket.core.internal.model.elementPayload.RequestPayload
 import chat.rocket.core.internal.realtime.socket.model.State
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -1267,6 +1268,12 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         )
     }
 
+    override fun sendRequestPayload(type: String, requestPayload: RequestPayload) {
+        presenter.sendRequestPayload(
+                type,
+                requestPayload
+        )
+    }
     fun openEmojiKeyboard() {
         // If keyboard is visible, simply show the  popup
         if (emojiKeyboardPopup.isKeyboardOpen) {

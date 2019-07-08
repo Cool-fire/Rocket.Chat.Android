@@ -12,7 +12,6 @@ import chat.rocket.core.model.block.elements.ButtonElement
 import chat.rocket.core.model.block.elements.Element
 import kotlinx.android.synthetic.main.item_message_block.view.*
 import ru.noties.markwon.Markwon
-import timber.log.Timber
 
 class BlockViewHolder(
         itemView: View,
@@ -28,7 +27,6 @@ class BlockViewHolder(
     }
 
     override fun bindViews(data: BlockUiModel) {
-        Timber.d("BlockUimodel - ${data.type}")
         when(data.type) {
             "section" -> bindSectionBlock(data)
         }
@@ -47,17 +45,19 @@ class BlockViewHolder(
                     "plain_text" -> {
                         section_text.text = data.text.text
                     }
+                    else -> {
+                        section_text.text = data.text.text
+                    }
                 }
             }
 
 
             //accessory
             if(data.hasAccesory){
-                Timber.d("BlockUimodel - ${data.accessory}")
                 val accessory = data.accessory
                 if (accessory != null) {
                     if(accessory.type == "button") {
-                        bindButton(accessory)
+                        bindButton(accessory, data)
                     }
                     else {
                         accessory_button.isVisible = false
@@ -73,13 +73,13 @@ class BlockViewHolder(
             }
     }
 
-    private fun bindButton(element: Element) {
+    private fun bindButton(element: Element, data: BlockUiModel) {
         val buttonElement = element as ButtonElement
         with(itemView) {
             accessory_button.isVisible = true
             accessory_button.text = buttonElement.text.text
             accessory_button.setOnClickListener {
-                accessoryElementOnClicklistener.onButtonElementClicked(it, buttonElement)
+                accessoryElementOnClicklistener.onButtonElementClicked(it, buttonElement, data)
             }
         }
 
@@ -116,5 +116,5 @@ class BlockViewHolder(
 }
 
 interface AccessoryElementOnClicklistener {
-    fun onButtonElementClicked(view: View, element: ButtonElement)
+    fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel)
 }

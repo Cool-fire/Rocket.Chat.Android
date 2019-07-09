@@ -5,6 +5,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.emoji.EmojiReactionListener
@@ -17,7 +19,7 @@ class BlockViewHolder(
         itemView: View,
         listener: ActionsListener,
         reactionListener: EmojiReactionListener? = null,
-        var accessoryElementOnClicklistener: AccessoryElementOnClicklistener
+        var blockElementOnClicklistener: BlockElementOnClicklistener
 ) : BaseViewHolder<BlockUiModel>(itemView, listener, reactionListener) {
 
     init {
@@ -29,6 +31,23 @@ class BlockViewHolder(
     override fun bindViews(data: BlockUiModel) {
         when(data.type) {
             "section" -> bindSectionBlock(data)
+            "actions" -> bindActionBlock(data)
+        }
+    }
+
+    private fun bindActionBlock(data: BlockUiModel) {
+        if(data.hasElements) {
+            with(itemView) {
+                elements_list.layoutManager = LinearLayoutManager(
+                        itemView.context,
+                        RecyclerView.VERTICAL,
+                        false
+                )
+                if(data.elements != null) {
+                    elements_list.isVisible = true
+                    elements_list.adapter = ElementsListAdapter(data.elements, blockElementOnClicklistener, data)
+                }
+            }
         }
     }
 
@@ -79,7 +98,7 @@ class BlockViewHolder(
             accessory_button.isVisible = true
             accessory_button.text = buttonElement.text.text
             accessory_button.setOnClickListener {
-                accessoryElementOnClicklistener.onButtonElementClicked(it, buttonElement, data)
+                blockElementOnClicklistener.onButtonElementClicked(it, buttonElement, data)
             }
         }
 
@@ -89,7 +108,7 @@ class BlockViewHolder(
     }
 
     private fun bindButtonColor(style: String) {
-        var color: Int
+        val color: Int
         when(style) {
             "primary" -> {
                 color = R.color.button_primary
@@ -115,6 +134,6 @@ class BlockViewHolder(
     }
 }
 
-interface AccessoryElementOnClicklistener {
+interface BlockElementOnClicklistener {
     fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel)
 }

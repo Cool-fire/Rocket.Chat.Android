@@ -230,7 +230,7 @@ class ChatRoomAdapter(
         }
     }
 
-    private val accessoryElementOnClicklistener = object : AccessoryElementOnClicklistener {
+    private val accessoryElementOnClicklistener = object : BlockElementOnClicklistener {
 
         override fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel) {
             Timber.d("Button Clicked")

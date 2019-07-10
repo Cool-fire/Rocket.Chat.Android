@@ -30,7 +30,7 @@ class ButtonElementViewHolder (
     }
 
     private fun bindButtonColor(style: String) {
-        val color: Int
+        var color: Int
         when(style) {
             "primary" -> {
                 color = R.color.button_primary
@@ -38,6 +38,10 @@ class ButtonElementViewHolder (
             }
             "danger" -> {
                 color = R.color.button_danger
+                bindColor(color)
+            }
+            else -> {
+                color = R.color.button_stroke
                 bindColor(color)
             }
         }

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.emoji.EmojiReactionListener
+import chat.rocket.android.util.extensions.isVisible
 import chat.rocket.core.model.block.elements.ButtonElement
 import chat.rocket.core.model.block.elements.Element
 import kotlinx.android.synthetic.main.item_message_block.view.*
@@ -22,6 +23,15 @@ class BlockViewHolder(
         var blockElementOnClicklistener: BlockElementOnClicklistener
 ) : BaseViewHolder<BlockUiModel>(itemView, listener, reactionListener) {
 
+    private val sectionViews = listOf<View>(
+            itemView.section_text,
+            itemView.accessory_button
+    )
+
+    private val actionViews = listOf<View>(
+            itemView.elements_list
+    )
+
     init {
         with(itemView) {
             setupActionMenu(block_container)
@@ -29,9 +39,17 @@ class BlockViewHolder(
     }
 
     override fun bindViews(data: BlockUiModel) {
-        when(data.type) {
-            "section" -> bindSectionBlock(data)
-            "actions" -> bindActionBlock(data)
+        with(itemView) {
+            when(data.type) {
+                "section" -> {
+                    actionViews.isVisible = false
+                    bindSectionBlock(data)
+                }
+                "actions" -> {
+                    sectionViews.isVisible = false
+                    bindActionBlock(data)
+                }
+            }
         }
     }
 
@@ -108,7 +126,7 @@ class BlockViewHolder(
     }
 
     private fun bindButtonColor(style: String) {
-        val color: Int
+        var color: Int
         when(style) {
             "primary" -> {
                 color = R.color.button_primary
@@ -116,6 +134,10 @@ class BlockViewHolder(
             }
             "danger" -> {
                 color = R.color.button_danger
+                bindColor(color)
+            }
+            else -> {
+                color = R.color.button_stroke
                 bindColor(color)
             }
         }

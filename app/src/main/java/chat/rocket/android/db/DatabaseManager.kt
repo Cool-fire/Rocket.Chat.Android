@@ -35,6 +35,8 @@ import chat.rocket.core.model.LastMessage
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.Myself
 import chat.rocket.core.model.Room
+import chat.rocket.core.model.block.ActionBlock
+import chat.rocket.core.model.block.SectionBlock
 import chat.rocket.core.model.userId
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.coroutines.GlobalScope
@@ -232,6 +234,7 @@ class DatabaseManager(val context: Application, val serverUrl: String, val token
         val messageEntity = message.toEntity()
         val list = mutableListOf<BaseMessageEntity>()
         createAttachments(message)?.let { list.addAll(it) }
+        createBlocks(message)?.let{ list.addAll(it) }
         createFavoriteRelations(message)?.let { list.addAll(it) }
         createMentionRelations(message)?.let { list.addAll(it) }
         createChannelRelations(message)?.let { list.addAll(it) }
@@ -325,6 +328,25 @@ class DatabaseManager(val context: Application, val serverUrl: String, val token
                 list
             } else null
         }
+
+    private fun createBlocks(message: Message): List<BaseMessageEntity>? =
+            message.blocks?.run {
+                if(isNotEmpty()) {
+                    val list = ArrayList<BaseMessageEntity>(size)
+                    forEach { block ->
+                        when(block) {
+                            is SectionBlock -> {
+                                list.addAll( block.asEntity(message.id, context))
+                            }
+
+                            is ActionBlock -> {
+                                list.addAll( block.asEntity(message.id, context))
+                            }
+                        }
+                    }
+                    list
+                } else null
+            }
 
     private suspend fun createUpdates(): List<ChatRoomEntity> {
         val list = ArrayList<ChatRoomEntity>()

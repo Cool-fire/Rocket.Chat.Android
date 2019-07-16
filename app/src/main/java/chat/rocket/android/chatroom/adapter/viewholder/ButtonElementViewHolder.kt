@@ -34,23 +34,23 @@ class ButtonElementViewHolder (
         when(style) {
             "primary" -> {
                 color = R.color.button_primary
-                bindColor(color)
+                bindColor(color, color)
             }
             "danger" -> {
                 color = R.color.button_danger
-                bindColor(color)
+                bindColor(color, color)
             }
             else -> {
                 color = R.color.button_stroke
-                bindColor(color)
+                bindColor(color,android.R.color.black)
             }
         }
     }
 
-    private fun bindColor(color: Int) {
+    private fun bindColor(strokeColor: Int, buttonColor: Int) {
         with(itemView) {
-            element_button.strokeColor = resources.getColorStateList(color)
-            element_button.setTextColor(resources.getColor(color))
+            element_button.strokeColor = resources.getColorStateList(strokeColor)
+            element_button.setTextColor(resources.getColor(buttonColor))
             element_button.setPadding(dpTopx(18))
         }
     }

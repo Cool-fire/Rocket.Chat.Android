@@ -12,12 +12,17 @@ import chat.rocket.core.model.attachment.Color
 import chat.rocket.core.model.attachment.Field
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
+import chat.rocket.core.model.block.ActionBlock
+import chat.rocket.core.model.block.Block
+import chat.rocket.core.model.block.SectionBlock
+import chat.rocket.core.model.block.elements.ButtonElement
 import chat.rocket.core.model.messageTypeOf
 import chat.rocket.core.model.url.Meta
 import chat.rocket.core.model.url.ParsedUrl
 import chat.rocket.core.model.url.Url
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
     suspend fun map(message: FullMessage): Message? = map(listOf(message)).firstOrNull()
@@ -51,7 +56,8 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 val reactions = this.reactions?.let { mapReactions(it) }
                 val attachments = this.attachments?.let { mapAttachments(it).asReversed() }
                 val messageType = messageTypeOf(this.message.type)
-
+                val blocks = this.blocks?.let { mapBlocks(it)}
+                Timber.d("blocks ${blocks?.size}")
                 list.add(
                     Message(
                         id = this.message.id,
@@ -71,6 +77,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                         mentions = mentions,
                         channels = channels,
                         attachments = attachments,
+                        blocks = blocks,
                         pinned = this.message.pinned,
                         starred = favorites,
                         reactions = reactions,
@@ -130,6 +137,79 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 username = username,
                 name = name
             )
+        }
+    }
+
+
+    private suspend fun mapBlocks(blocks: List<BlockEntity>): List<Block> {
+        val list = mutableListOf<Block>()
+        blocks.forEach { block ->
+            with(block) {
+                when(type) {
+                    "section" -> {
+                        val accessory = if(hasAccessory) {
+                            withContext(Dispatchers.IO) {
+                                retryDB("getAcessoryButtonElement") {
+                                    dbManager.messageDao().getAccessoryButtonElement(block._id)
+                                }
+                            }.mapNotNull {
+                                mapElement(it)
+                            }
+                        } else { null }
+                        text?.let {
+                            SectionBlock(
+                                    type = type,
+                                    text = it,
+                                    fields = null,
+
+                                    accessory = accessory?.get(0),
+                                    blockId = blockId
+                            )
+                        }?.let {
+                            list.add(it)
+                        }
+                    }
+                    "actions" -> {
+                        val elements = if(hasElements) {
+                            withContext(Dispatchers.IO) {
+                                retryDB("getActionsBlockElement") {
+                                    dbManager.messageDao().getActionsButtonElement(block._id)
+                                }.mapNotNull {
+                                    mapElement(it)
+                                }
+                            }
+                        } else { null }
+                        Timber.d("${elements?.size}")
+                        elements?.let {
+                            Timber.d("Action Blocks are creating")
+                            list.add(
+                                    ActionBlock(
+                                    type = type,
+                                    blockId = blockId,
+                                    elements = it
+                                )
+                            )
+                        }
+                    }
+                    else -> null
+                }
+            }
+        }
+        return list
+    }
+
+    private fun mapElement(element: BlockButtonElementEntity): ButtonElement? {
+        return when(element.type) {
+            "button" -> ButtonElement(
+                    type = element.type,
+                    actionId = element.actionId,
+                    text = element.text,
+                    url = element.url,
+                    confirm = null,
+                    value = element.value,
+                    style = element.style
+            )
+            else -> null
         }
     }
 

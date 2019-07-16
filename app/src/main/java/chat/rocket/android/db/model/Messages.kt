@@ -100,6 +100,8 @@ data class PartialMessage(
     var urls: List<UrlEntity>? = null
     @Relation(parentColumn = "id", entityColumn = "message_id")
     var attachments: List<AttachmentEntity>? = null
+    @Relation(parentColumn = "id", entityColumn = "message_id")
+    var blocks: List<BlockEntity>? = null
     @Relation(parentColumn = "id", entityColumn = "messageId")
     var reactions: List<ReactionEntity>? = null
     @Relation(parentColumn = "id", entityColumn = "messageId")

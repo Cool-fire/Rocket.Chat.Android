@@ -15,6 +15,7 @@ import chat.rocket.core.model.block.elements.ButtonElement
 import chat.rocket.core.model.block.elements.Element
 import kotlinx.android.synthetic.main.item_message_block.view.*
 import ru.noties.markwon.Markwon
+import timber.log.Timber
 
 class BlockViewHolder(
         itemView: View,
@@ -130,23 +131,23 @@ class BlockViewHolder(
         when(style) {
             "primary" -> {
                 color = R.color.button_primary
-                bindColor(color)
+                bindColor(color, color)
             }
             "danger" -> {
                 color = R.color.button_danger
-                bindColor(color)
+                bindColor(color, color)
             }
             else -> {
                 color = R.color.button_stroke
-                bindColor(color)
+                bindColor(color, android.R.color.black)
             }
         }
     }
 
-    private fun bindColor(color: Int) {
+    private fun bindColor(strokeColor: Int, buttonColor: Int) {
         with(itemView) {
-            accessory_button.strokeColor = resources.getColorStateList(color)
-            accessory_button.setTextColor(resources.getColor(color))
+            accessory_button.strokeColor = resources.getColorStateList(strokeColor)
+            accessory_button.setTextColor(resources.getColor(buttonColor))
             accessory_button.setPadding(dpTopx(18))
         }
     }

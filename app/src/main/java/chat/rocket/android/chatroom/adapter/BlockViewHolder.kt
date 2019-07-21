@@ -12,10 +12,12 @@ import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.isVisible
 import chat.rocket.core.model.block.elements.ButtonElement
+import chat.rocket.core.model.block.elements.DatePickerElement
 import chat.rocket.core.model.block.elements.Element
+import chat.rocket.core.model.block.elements.OverflowElement
+import chat.rocket.core.model.block.objects.OptionObject
 import kotlinx.android.synthetic.main.item_message_block.view.*
 import ru.noties.markwon.Markwon
-import timber.log.Timber
 
 class BlockViewHolder(
         itemView: View,
@@ -26,7 +28,9 @@ class BlockViewHolder(
 
     private val sectionViews = listOf<View>(
             itemView.section_text,
-            itemView.accessory_button
+            itemView.accessory_button,
+            itemView.accessory_overflow,
+            itemView.accessory_datepicker
     )
 
     private val actionViews = listOf<View>(
@@ -40,16 +44,14 @@ class BlockViewHolder(
     }
 
     override fun bindViews(data: BlockUiModel) {
-        with(itemView) {
-            when(data.type) {
-                "section" -> {
-                    actionViews.isVisible = false
-                    bindSectionBlock(data)
-                }
-                "actions" -> {
-                    sectionViews.isVisible = false
-                    bindActionBlock(data)
-                }
+        when(data.type) {
+            "section" -> {
+                actionViews.isVisible = false
+                bindSectionBlock(data)
+            }
+            "actions" -> {
+                sectionViews.isVisible = false
+                bindActionBlock(data)
             }
         }
     }
@@ -96,11 +98,37 @@ class BlockViewHolder(
                 if (accessory != null) {
                     if(accessory.type == "button") {
                         bindButton(accessory, data)
-                    }
-                    else {
-                        accessory_button.isVisible = false
+                    } else if(accessory.type == "overflow") {
+                        bindOverflowMenu(accessory, data)
+                    } else if(accessory.type == "datepicker") {
+                        bindDatePicker(accessory, data)
                     }
                 }
+            }
+        }
+    }
+
+    private fun bindDatePicker(accessory: Element, data: BlockUiModel) {
+        val datePickerElement = accessory as DatePickerElement
+        val placeholder = datePickerElement.placeholder
+        with(itemView) {
+            accessory_datepicker.isVisible = true
+            if(placeholder != null) {
+                accessory_datepicker.text = placeholder.text
+            }
+
+            accessory_datepicker.setOnClickListener {
+                blockElementOnClicklistener.onDatePickerElementClicked(it, datePickerElement, data, blockElementOnClicklistener)
+            }
+        }
+    }
+
+    private fun bindOverflowMenu(element: Element, data: BlockUiModel) {
+        val overflowElement = element as OverflowElement
+        with(itemView) {
+            accessory_overflow.isVisible = true
+            accessory_overflow.setOnClickListener {
+                blockElementOnClicklistener.onOverflowElementClicked(it, overflowElement, data, blockElementOnClicklistener)
             }
         }
     }
@@ -158,5 +186,14 @@ class BlockViewHolder(
 }
 
 interface BlockElementOnClicklistener {
+
     fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel)
+
+    fun onOverflowElementClicked(view: View, element: OverflowElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener)
+
+    fun onDatePickerElementClicked(view: View, datePickerElement: DatePickerElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener)
+
+    fun onOverFlowOptionClicked(option: OptionObject, overflowElement: OverflowElement, data: BlockUiModel, view: View)
+
+    fun onDateSelected(selectedDate: String, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener)
 }

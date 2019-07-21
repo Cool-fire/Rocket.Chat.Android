@@ -16,12 +16,15 @@ import chat.rocket.android.chatroom.uimodel.toViewType
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.openTabbedUrl
-import chat.rocket.core.internal.model.elementPayload.ButtonElementPayload
-import chat.rocket.core.internal.model.elementPayload.RequestPayload
+import chat.rocket.core.internal.model.elementPayload.*
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
 import chat.rocket.core.model.block.elements.ButtonElement
+import chat.rocket.core.model.block.elements.DatePickerElement
+import chat.rocket.core.model.block.elements.OverflowElement
+import chat.rocket.core.model.block.objects.ConfirmObject
+import chat.rocket.core.model.block.objects.OptionObject
 import chat.rocket.core.model.isSystemMessage
 import timber.log.Timber
 import java.security.InvalidParameterException
@@ -232,41 +235,69 @@ class ChatRoomAdapter(
 
     private val accessoryElementOnClicklistener = object : BlockElementOnClicklistener {
 
-        override fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel) {
-            Timber.d("Button Clicked")
-            if(element.url != null) {
-                element.url?.let { view.openTabbedUrl(it) }
-            } else {
-                val message = data.message
-                val msgId = data.messageId
-                val blockId = data.blockId
+        override fun onDateSelected(selectedDate: String, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+            with(data) {
                 val botId = message.sender?.id ?: ""
-                val text = element.text
-                val value = element.value
-                val actionId = element.actionId
-                val roomId = message.roomId
 
-                val buttonElementPayload = ButtonElementPayload("button",blockId,actionId,text,value)
-                val requestPayload = RequestPayload(msgId, roomId, botId, listOf(buttonElementPayload))
+                val datePickerElementPayload = DatePickerElementPayload("datepicker", botId, datePickerElement.actionId, selectedDate, datePickerElement.initialDate)
+                val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(datePickerElementPayload))
+                actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+            }
+        }
 
+        override fun onOverFlowOptionClicked(option: OptionObject, overflowElement: OverflowElement, data: BlockUiModel, view: View) {
+            with(data) {
+                val botId = message.sender?.id ?: ""
 
-                if(element.confirm != null) {
-                    showConfirmationDialog(view, element, requestPayload)
+                val selectedOption = OverflowOptionPayload(option.text, option.value)
+                val overflowElementPayload = OverflowElementPayload("overflow", blockId, overflowElement.actionId, selectedOption)
+                val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(overflowElementPayload))
+
+                if (overflowElement.confirm != null) {
+                    val confirm = overflowElement.confirm
+                    showConfirmationDialog(view, confirm, requestPayload)
                 } else {
                     actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
                 }
             }
         }
 
+        override fun onDatePickerElementClicked(view: View, datePickerElement: DatePickerElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener) {
+            actionSelectListener?.openDatePickerElement(view, datePickerElement, data, blockElementOnClicklistener)
+        }
+
+        override fun onOverflowElementClicked(view: View, element: OverflowElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener) {
+            actionSelectListener?.openOverflowElementOptions(element, data, blockElementOnClicklistener)
+        }
+
+        override fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel) {
+            if(element.url != null) {
+                element.url?.let { view.openTabbedUrl(it) }
+            } else {
+                with(data) {
+                    val botId = message.sender?.id ?: ""
+
+                    val buttonElementPayload = ButtonElementPayload("button",blockId, element.actionId,element.text,element.value)
+                    val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(buttonElementPayload))
+
+                    if(element.confirm != null) {
+                        val confirm = element.confirm
+                        showConfirmationDialog(view, confirm, requestPayload)
+                    } else {
+                        actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+                    }
+                }
+            }
+        }
+
     }
 
-    private fun showConfirmationDialog(view: View, element: ButtonElement, requestPayload: RequestPayload) {
+    private fun showConfirmationDialog(view: View, confirm: ConfirmObject?, requestPayload: RequestPayload) {
         lateinit var title : String
         lateinit var message : String
         lateinit var confirmText : String
         lateinit var denyText : String
 
-        val confirm = element.confirm
         confirm?.also {
             title = it.title.text
             message = it.text.text
@@ -444,6 +475,10 @@ class ChatRoomAdapter(
 
         fun openConfigurableWebPage(roomId: String, url: String, heightRatio: String)
 
+        fun openOverflowElementOptions(element: OverflowElement, data: BlockUiModel, listener: BlockElementOnClicklistener)
+
         fun sendRequestPayload(type: String, requestPayload: RequestPayload)
+
+        fun openDatePickerElement(view: View, datePickerElement: DatePickerElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener)
     }
 }

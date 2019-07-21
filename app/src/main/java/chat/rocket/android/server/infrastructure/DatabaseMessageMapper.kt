@@ -56,8 +56,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 val reactions = this.reactions?.let { mapReactions(it) }
                 val attachments = this.attachments?.let { mapAttachments(it).asReversed() }
                 val messageType = messageTypeOf(this.message.type)
-                val blocks = this.blocks?.let { mapBlocks(it)}
-                Timber.d("blocks ${blocks?.size}")
+//                val blocks = this.blocks?.let { mapBlocks(it)}
                 list.add(
                     Message(
                         id = this.message.id,
@@ -77,7 +76,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                         mentions = mentions,
                         channels = channels,
                         attachments = attachments,
-                        blocks = blocks,
+//                        blocks = blocks,
                         pinned = this.message.pinned,
                         starred = favorites,
                         reactions = reactions,
@@ -179,9 +178,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                                 }
                             }
                         } else { null }
-                        Timber.d("${elements?.size}")
                         elements?.let {
-                            Timber.d("Action Blocks are creating")
                             list.add(
                                     ActionBlock(
                                     type = type,

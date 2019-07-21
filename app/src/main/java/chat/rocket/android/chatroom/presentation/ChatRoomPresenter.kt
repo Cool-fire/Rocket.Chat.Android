@@ -2,13 +2,16 @@ package chat.rocket.android.chatroom.presentation
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.view.View
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.analytics.event.SubscriptionTypeEvent
 import chat.rocket.android.chatroom.adapter.AutoCompleteType
+import chat.rocket.android.chatroom.adapter.BlockElementOnClicklistener
 import chat.rocket.android.chatroom.adapter.PEOPLE
 import chat.rocket.android.chatroom.adapter.ROOMS
 import chat.rocket.android.chatroom.domain.UriInteractor
+import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.chatroom.uimodel.RoomUiModel
 import chat.rocket.android.chatroom.uimodel.UiModelMapper
 import chat.rocket.android.chatroom.uimodel.suggestion.ChatRoomSuggestionUiModel
@@ -58,6 +61,8 @@ import chat.rocket.core.model.ChatRoomRole
 import chat.rocket.core.model.Command
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.Room
+import chat.rocket.core.model.block.elements.DatePickerElement
+import chat.rocket.core.model.block.elements.OverflowElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -1406,5 +1411,19 @@ class ChatRoomPresenter @Inject constructor(
                 }
             }
         }
+    }
+
+    fun openOverflowElementOptions(element: OverflowElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+        navigator.toShowOverflowOptionsPage(element, data, listener)
+    }
+
+   fun openDatePickerDialog(dialogview: View, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+       launchUI(strategy) {
+           view.openDatePickerDialog(dialogview, datePickerElement, data, listener)
+       }
+   }
+
+    fun onDateSelected(selectedDate: String, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+        listener.onDateSelected(selectedDate, datePickerElement, data, listener)
     }
 }

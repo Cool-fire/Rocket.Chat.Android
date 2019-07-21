@@ -1,6 +1,7 @@
 package chat.rocket.android.chatroom.adapter
 
 import android.content.res.Resources
+import android.net.Uri
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
@@ -11,13 +12,13 @@ import chat.rocket.android.R
 import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.isVisible
-import chat.rocket.core.model.block.elements.ButtonElement
-import chat.rocket.core.model.block.elements.DatePickerElement
-import chat.rocket.core.model.block.elements.Element
-import chat.rocket.core.model.block.elements.OverflowElement
+import chat.rocket.core.model.block.elements.*
 import chat.rocket.core.model.block.objects.OptionObject
+import com.facebook.drawee.backends.pipeline.Fresco
+import kotlinx.android.synthetic.main.item_message_attachment.view.*
 import kotlinx.android.synthetic.main.item_message_block.view.*
 import ru.noties.markwon.Markwon
+import timber.log.Timber
 
 class BlockViewHolder(
         itemView: View,
@@ -102,9 +103,24 @@ class BlockViewHolder(
                         bindOverflowMenu(accessory, data)
                     } else if(accessory.type == "datepicker") {
                         bindDatePicker(accessory, data)
+                    } else if(accessory.type == "image") {
+                        bindImage(accessory, data)
                     }
                 }
             }
+        }
+    }
+
+    private fun bindImage(accessory: Element, data: BlockUiModel) {
+        val imageElement = accessory as ImageElement
+        with(itemView) {
+            accessory_image.isVisible = true
+            val controller = Fresco.newDraweeControllerBuilder().apply {
+                setUri(imageElement.imageUrl)
+                autoPlayAnimations = true
+                oldController = accessory_image.controller
+            }.build()
+            accessory_image.controller = controller
         }
     }
 

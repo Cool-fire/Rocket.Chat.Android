@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:id="@+id/block_container"
     android:animateLayoutChanges="true"
     android:background="?android:attr/selectableItemBackground"
@@ -44,14 +45,14 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="@android:color/black"
         android:textSize="16sp"
+        android:visibility="gone"
         app:cornerRadius="5dp"
-        app:layout_constraintEnd_toEndOf="@id/accessory_datepicker"
+        app:layout_constraintEnd_toStartOf="@id/accessory_datepicker"
         app:layout_constraintStart_toEndOf="@+id/section_text"
         app:layout_constraintTop_toTopOf="parent"
         app:rippleColor="@color/ripple_background"
         app:strokeColor="@color/button_stroke"
-        android:visibility="gone"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/accessory_datepicker"
@@ -65,7 +66,7 @@
         android:textColor="@android:color/black"
         android:textSize="16sp"
         app:cornerRadius="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/accessory_image"
         app:layout_constraintStart_toEndOf="@id/accessory_overflow"
         app:layout_constraintTop_toTopOf="parent"
         app:rippleColor="@color/ripple_background"
@@ -74,6 +75,20 @@
         android:maxEms="3"
         android:maxLines="1"
         android:ellipsize="end"
+        tools:visibility="visible"/>
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/accessory_image"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/accessory_datepicker"
+        app:layout_constraintTop_toTopOf="parent"
+        fresco:actualImageScaleType="centerCrop"
+        fresco:roundedCornerRadius="5dp"
+        fresco:placeholderImage="@drawable/image_dummy"
+        android:visibility="gone"
+        tools:background="@drawable/image_dummy"
         tools:visibility="visible"/>
 
     <com.google.android.material.button.MaterialButton

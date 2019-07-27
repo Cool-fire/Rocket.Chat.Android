@@ -57,7 +57,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 val reactions = this.reactions?.let { mapReactions(it) }
                 val attachments = this.attachments?.let { mapAttachments(it).asReversed() }
                 val messageType = messageTypeOf(this.message.type)
-//                val blocks = this.blocks?.let { mapBlocks(it)}
+                val blocks = this.blocks?.let { mapBlocks(it).asReversed() }
                 list.add(
                     Message(
                         id = this.message.id,
@@ -77,7 +77,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                         mentions = mentions,
                         channels = channels,
                         attachments = attachments,
-//                        blocks = blocks,
+                        blocks = blocks,
                         pinned = this.message.pinned,
                         starred = favorites,
                         reactions = reactions,
@@ -141,28 +141,18 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
     }
 
 
-    private suspend fun mapBlocks(blocks: List<BlockEntity>): List<Block> {
+    private fun mapBlocks(blocks: List<BlockEntity>): List<Block> {
         val list = mutableListOf<Block>()
         blocks.forEach { block ->
             with(block) {
                 when(type) {
                     "section" -> {
-                        val accessory = if(hasAccessory) {
-                            withContext(Dispatchers.IO) {
-                                retryDB("getAcessoryButtonElement") {
-                                    dbManager.messageDao().getAccessoryButtonElement(block._id)
-                                }
-                            }.mapNotNull {
-                                mapElement(it)
-                            }
-                        } else { null }
                         text?.let {
                             SectionBlock(
                                     type = type,
                                     text = it,
                                     fields = null,
-
-                                    accessory = accessory?.get(0),
+                                    accessory = accessory,
                                     blockId = blockId
                             )
                         }?.let {
@@ -170,15 +160,6 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                         }
                     }
                     "actions" -> {
-                        val elements = if(hasElements) {
-                            withContext(Dispatchers.IO) {
-                                retryDB("getActionsBlockElement") {
-                                    dbManager.messageDao().getActionsButtonElement(block._id)
-                                }.mapNotNull {
-                                    mapElement(it)
-                                }
-                            }
-                        } else { null }
                         elements?.let {
                             list.add(
                                     ActionBlock(
@@ -194,21 +175,6 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
             }
         }
         return list
-    }
-
-    private fun mapElement(element: BlockButtonElementEntity): ButtonElement? {
-        return when(element.type) {
-            "button" -> ButtonElement(
-                    type = element.type,
-                    actionId = element.actionId,
-                    text = element.text,
-                    url = element.url,
-                    confirm = null,
-                    value = element.value,
-                    style = element.style
-            )
-            else -> null
-        }
     }
 
     private suspend fun mapAttachments(attachments: List<AttachmentEntity>): List<Attachment> {

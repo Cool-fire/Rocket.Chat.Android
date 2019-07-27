@@ -31,7 +31,8 @@ class BlockViewHolder(
             itemView.section_text,
             itemView.accessory_button,
             itemView.accessory_overflow,
-            itemView.accessory_datepicker
+            itemView.accessory_datepicker,
+            itemView.accessory_image
     )
 
     private val actionViews = listOf<View>(
@@ -97,14 +98,11 @@ class BlockViewHolder(
             if(data.hasAccesory){
                 val accessory = data.accessory
                 if (accessory != null) {
-                    if(accessory.type == "button") {
-                        bindButton(accessory, data)
-                    } else if(accessory.type == "overflow") {
-                        bindOverflowMenu(accessory, data)
-                    } else if(accessory.type == "datepicker") {
-                        bindDatePicker(accessory, data)
-                    } else if(accessory.type == "image") {
-                        bindImage(accessory, data)
+                    when {
+                        accessory.type == "button" -> bindButton(accessory, data)
+                        accessory.type == "overflow" -> bindOverflowMenu(accessory, data)
+                        accessory.type == "datepicker" -> bindDatePicker(accessory, data)
+                        accessory.type == "image" -> bindImage(accessory, data)
                     }
                 }
             }

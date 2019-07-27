@@ -4,6 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import chat.rocket.android.db.model.*
+import chat.rocket.android.db.typeconverters.BlockElementConverter
+import chat.rocket.android.db.typeconverters.BlockElementListConverter
 import chat.rocket.android.emoji.internal.db.StringListConverter
 
 @Database(
@@ -18,15 +20,14 @@ import chat.rocket.android.emoji.internal.db.StringListConverter
         AttachmentFieldEntity::class,
         AttachmentActionEntity::class,
         BlockEntity::class,
-        BlockButtonElementEntity::class,
         UrlEntity::class,
         ReactionEntity::class,
         MessagesSync::class
     ],
-    version = 14,
+    version = 18,
     exportSchema = true
 )
-@TypeConverters(StringListConverter::class)
+@TypeConverters(StringListConverter::class, BlockElementConverter::class, BlockElementListConverter::class)
 abstract class RCDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun chatRoomDao(): ChatRoomDao

@@ -39,9 +39,6 @@ abstract class  MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(action: BlockEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(action: BlockButtonElementEntity)
-
     @Query("DELETE FROM messages WHERE id = :id")
     abstract fun delete(id: String)
 
@@ -74,7 +71,6 @@ abstract class  MessageDao {
             is ReactionEntity -> insert(entity)
             is UrlEntity -> insert(entity)
             is BlockEntity -> insert(entity)
-            is BlockButtonElementEntity -> insert(entity)
         }
     }
 
@@ -173,14 +169,6 @@ abstract class  MessageDao {
 
     @Query("SELECT * FROM attachment_action WHERE attachmentId = :id")
     abstract fun getAttachmentActions(id: String): List<AttachmentActionEntity>
-
-    @Query("SELECT * FROM block_button_element WHERE blockId =:id AND block_type = 'section'")
-    abstract fun getAccessoryButtonElement(id: String): List<BlockButtonElementEntity>
-
-
-    @Query("SELECT * FROM block_button_element WHERE blockId =:id AND block_type = 'actions'")
-    abstract fun getActionsButtonElement(id: String): List<BlockButtonElementEntity>
-
 
     companion object {
         const val BASE_MESSAGE_QUERY = """

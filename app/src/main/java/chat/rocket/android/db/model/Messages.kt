@@ -108,7 +108,7 @@ data class PartialMessage(
     var channels: List<MessageChannels>? = null
 
     override fun toString(): String {
-        return "PartialMessage(message=$message, senderName=$senderName, senderUsername=$senderUsername, editName=$editName, editUsername=$editUsername, urls=$urls, attachments=$attachments, reactions=$reactions, channels=$channels)"
+        return "PartialMessage(message=$message, senderName=$senderName, senderUsername=$senderUsername, editName=$editName, editUsername=$editUsername, urls=$urls, attachments=$attachments, blocks=$blocks, reactions=$reactions, channels=$channels)"
     }
 }
 

@@ -84,7 +84,7 @@ class ChatRoomAdapter(
                         view,
                         actionsListener,
                         reactionListener,
-                        accessoryElementOnClicklistener
+                        elementOnClicklistener
                 )
             }
             BaseUiModel.ViewType.MESSAGE_REPLY -> {
@@ -145,6 +145,7 @@ class ChatRoomAdapter(
         return when (model) {
             is MessageUiModel -> model.messageId.hashCode().toLong()
             is AttachmentUiModel -> model.id
+            is BlockUiModel -> model.messageId.hashCode().plus(2).toLong()
             else -> return position.toLong()
         }
     }
@@ -238,7 +239,7 @@ class ChatRoomAdapter(
         }
     }
 
-    private val accessoryElementOnClicklistener = object : BlockElementOnClicklistener {
+    private val elementOnClicklistener = object : BlockElementOnClicklistener {
 
         override fun onDateSelected(selectedDate: String, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
             with(data) {

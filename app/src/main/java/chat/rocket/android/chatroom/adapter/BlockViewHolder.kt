@@ -49,6 +49,7 @@ class BlockViewHolder(
         when(data.type) {
             "section" -> {
                 actionViews.isVisible = false
+                sectionViews.isVisible = false
                 bindSectionBlock(data)
             }
             "actions" -> {

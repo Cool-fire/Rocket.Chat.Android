@@ -57,7 +57,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 val reactions = this.reactions?.let { mapReactions(it) }
                 val attachments = this.attachments?.let { mapAttachments(it).asReversed() }
                 val messageType = messageTypeOf(this.message.type)
-                val blocks = this.blocks?.let { mapBlocks(it).asReversed() }
+                val blocks = this.blocks?.let { mapBlocks(it) }
                 list.add(
                     Message(
                         id = this.message.id,

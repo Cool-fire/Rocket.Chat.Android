@@ -1,6 +1,7 @@
 package chat.rocket.android.chatroom.presentation
 
 import chat.rocket.android.R
+import chat.rocket.android.appcenter.ui.TAG_APPCENTER_FRAGMENT
 import chat.rocket.android.chatdetails.ui.TAG_CHAT_DETAILS_FRAGMENT
 import chat.rocket.android.chatinformation.ui.messageInformationIntent
 import chat.rocket.android.chatroom.ui.ChatRoomActivity
@@ -116,6 +117,11 @@ class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
         }
     }
 
+    fun toAppCenter(chatRoomId: String) {
+        activity.addFragmentBackStack(TAG_APPCENTER_FRAGMENT, R.id.fragment_container) {
+            chat.rocket.android.appcenter.ui.newInstance(chatRoomId)
+        }
+    }
     fun toNewServer() {
         activity.startActivity(activity.changeServerIntent())
         activity.finish()

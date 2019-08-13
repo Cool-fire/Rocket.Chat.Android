@@ -1,5 +1,6 @@
 package chat.rocket.android.dagger.module
 
+import chat.rocket.android.appcenter.di.AppcenterFragmentProvider
 import chat.rocket.android.authentication.di.AuthenticationModule
 import chat.rocket.android.authentication.login.di.LoginFragmentProvider
 import chat.rocket.android.authentication.loginoptions.di.LoginOptionsFragmentProvider
@@ -89,7 +90,8 @@ abstract class ActivityBuilder {
             MentionsFragmentProvider::class,
             PinnedMessagesFragmentProvider::class,
             FavoriteMessagesFragmentProvider::class,
-            FilesFragmentProvider::class
+            FilesFragmentProvider::class,
+            AppcenterFragmentProvider::class
         ]
     )
     abstract fun bindChatRoomActivity(): ChatRoomActivity

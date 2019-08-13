@@ -145,7 +145,7 @@ class ChatRoomAdapter(
         return when (model) {
             is MessageUiModel -> model.messageId.hashCode().toLong()
             is AttachmentUiModel -> model.id
-            is BlockUiModel -> model.messageId.hashCode().plus(2).toLong()
+            is BlockUiModel -> model.id
             else -> return position.toLong()
         }
     }
@@ -245,7 +245,7 @@ class ChatRoomAdapter(
             with(data) {
                 val botId = message.sender?.id ?: ""
 
-                val datePickerElementPayload = DatePickerElementPayload("datepicker", botId, datePickerElement.actionId, selectedDate, datePickerElement.initialDate)
+                val datePickerElementPayload = DatePickerElementPayload("datepicker", blockId, datePickerElement.actionId, selectedDate, datePickerElement.initialDate)
                 val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(datePickerElementPayload))
                 actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
             }

@@ -369,6 +369,8 @@ class UiModelMapper @Inject constructor(
     ): BaseUiModel<*> {
         return with(block){
             val content = stripMessageQuotes(message)
+            val id = blockId(message, block)
+
             val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
             val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
             val permalink = messageHelper.createPermalink(message, chatRoom, false)
@@ -384,6 +386,7 @@ class UiModelMapper @Inject constructor(
                     currentDayMarkerText = dayMarkerText,
                     showDayMarker = false,
                     permalink = permalink,
+                    id = id,
                     type = type,
                     text = null,
                     blockId = blockId,
@@ -399,6 +402,8 @@ class UiModelMapper @Inject constructor(
     ): BaseUiModel<*> {
         return with(block){
             val content = stripMessageQuotes(message)
+            val id = blockId(message, block)
+
             val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
             val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
             val permalink = messageHelper.createPermalink(message, chatRoom, false)
@@ -414,6 +419,7 @@ class UiModelMapper @Inject constructor(
                     currentDayMarkerText = dayMarkerText,
                     showDayMarker = false,
                     permalink = permalink,
+                    id = id,
                     type = type,
                     text = text,
                     blockId = blockId,
@@ -507,6 +513,9 @@ class UiModelMapper @Inject constructor(
         return "${message.id}_${attachment.hashCode()}".hashCode().toLong()
     }
 
+    private fun blockId(message: Message, block: Block): Long {
+        return "${message.id}_${block.hashCode()}".hashCode().toLong()
+    }
     private fun attachmentTitle(title: String?, vararg url: String?): CharSequence {
         title?.let { return it }
 

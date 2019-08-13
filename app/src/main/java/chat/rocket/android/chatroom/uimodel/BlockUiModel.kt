@@ -20,6 +20,7 @@ data class BlockUiModel(
         override var showDayMarker: Boolean,
         override var menuItemsToHide: MutableList<Int> = mutableListOf(),
         override var permalink: String,
+        val id: Long,
         val type: String,
         val text: TextObject?,
         val blockId: String?,

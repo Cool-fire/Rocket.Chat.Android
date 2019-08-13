@@ -91,6 +91,10 @@ class ChatDetailsPresenter @Inject constructor(
         navigator.toFavoriteMessageList(chatRoomId)
     }
 
+    fun toAppcenter(chatRoomId: String) {
+        navigator.toAppCenter(chatRoomId)
+    }
+
     private fun roomToChatDetails(room: Room): ChatDetails {
         return with(room) {
             ChatDetails(

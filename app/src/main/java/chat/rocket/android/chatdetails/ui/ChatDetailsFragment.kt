@@ -177,6 +177,12 @@ class ChatDetailsFragment : Fragment(), ChatDetailsView {
             ) {
                 presenter.toPinned(chatRoomId)
             }
+            it.addOption(
+                    "App Center",
+                    R.drawable.ic_cube
+            ) {
+                presenter.toAppcenter(chatRoomId)
+            }
         }
     }
 

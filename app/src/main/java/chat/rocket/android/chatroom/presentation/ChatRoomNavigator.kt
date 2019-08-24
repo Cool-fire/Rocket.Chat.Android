@@ -3,9 +3,12 @@ package chat.rocket.android.chatroom.presentation
 import chat.rocket.android.R
 import chat.rocket.android.chatdetails.ui.TAG_CHAT_DETAILS_FRAGMENT
 import chat.rocket.android.chatinformation.ui.messageInformationIntent
+import chat.rocket.android.chatroom.adapter.BlockElementOnClicklistener
 import chat.rocket.android.chatroom.ui.ChatRoomActivity
+import chat.rocket.android.chatroom.ui.bottomsheet.OptionsBottomSheet
 import chat.rocket.android.chatroom.ui.bottomsheet.WebUrlBottomSheet
 import chat.rocket.android.chatroom.ui.chatRoomIntent
+import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.favoritemessages.ui.TAG_FAVORITE_MESSAGES_FRAGMENT
 import chat.rocket.android.files.ui.TAG_FILES_FRAGMENT
 import chat.rocket.android.inviteusers.ui.TAG_INVITE_USERS_FRAGMENT
@@ -18,6 +21,7 @@ import chat.rocket.android.userdetails.ui.TAG_USER_DETAILS_FRAGMENT
 import chat.rocket.android.util.extensions.addFragmentBackStack
 import chat.rocket.android.videoconference.ui.videoConferenceIntent
 import chat.rocket.android.webview.ui.webViewIntent
+import chat.rocket.core.model.block.elements.OverflowElement
 
 class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
 
@@ -167,5 +171,11 @@ class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
     fun toConfigurableWebPage(roomId: String, url: String, heightRatio: String) {
         val weburlbottomsheet = WebUrlBottomSheet.newInstance(url, roomId, heightRatio)
         weburlbottomsheet.show(activity.supportFragmentManager, null)
+    }
+
+    fun toShowOverflowOptionsPage(element: OverflowElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+        val overflowoptionsBottomSheet = OptionsBottomSheet()
+        overflowoptionsBottomSheet.addOverFlowItem(element, data, listener)
+        overflowoptionsBottomSheet.show(activity.supportFragmentManager, null)
     }
 }

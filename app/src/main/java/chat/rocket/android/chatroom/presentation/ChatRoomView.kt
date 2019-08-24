@@ -1,6 +1,9 @@
 package chat.rocket.android.chatroom.presentation
 
+import android.view.View
+import chat.rocket.android.chatroom.adapter.BlockElementOnClicklistener
 import chat.rocket.android.chatroom.uimodel.BaseUiModel
+import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.ChatRoomSuggestionUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.CommandSuggestionUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.EmojiSuggestionUiModel
@@ -9,7 +12,7 @@ import chat.rocket.android.chatrooms.adapter.model.RoomUiModel
 import chat.rocket.android.core.behaviours.LoadingView
 import chat.rocket.android.core.behaviours.MessageView
 import chat.rocket.core.internal.realtime.socket.model.State
-import chat.rocket.core.model.ChatRoom
+import chat.rocket.core.model.block.elements.DatePickerElement
 
 interface ChatRoomView : LoadingView, MessageView {
 
@@ -137,5 +140,7 @@ interface ChatRoomView : LoadingView, MessageView {
     fun populateCommandSuggestions(commands: List<CommandSuggestionUiModel>)
 
     fun onRoomUpdated(roomUiModel: RoomUiModel)
+
+    fun openDatePickerDialog(dialogview: View, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener)
 
 }

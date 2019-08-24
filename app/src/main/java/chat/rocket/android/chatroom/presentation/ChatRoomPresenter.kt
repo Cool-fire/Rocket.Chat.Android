@@ -2,13 +2,16 @@ package chat.rocket.android.chatroom.presentation
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.view.View
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.analytics.event.SubscriptionTypeEvent
 import chat.rocket.android.chatroom.adapter.AutoCompleteType
+import chat.rocket.android.chatroom.adapter.BlockElementOnClicklistener
 import chat.rocket.android.chatroom.adapter.PEOPLE
 import chat.rocket.android.chatroom.adapter.ROOMS
 import chat.rocket.android.chatroom.domain.UriInteractor
+import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.chatroom.uimodel.RoomUiModel
 import chat.rocket.android.chatroom.uimodel.UiModelMapper
 import chat.rocket.android.chatroom.uimodel.suggestion.ChatRoomSuggestionUiModel
@@ -46,36 +49,20 @@ import chat.rocket.common.model.SimpleUser
 import chat.rocket.common.model.UserStatus
 import chat.rocket.common.model.roomTypeOf
 import chat.rocket.common.util.ifNull
+import chat.rocket.core.internal.model.elementPayload.RequestPayload
 import chat.rocket.core.internal.realtime.setTypingStatus
 import chat.rocket.core.internal.realtime.socket.model.State
 import chat.rocket.core.internal.realtime.subscribeRoomMessages
 import chat.rocket.core.internal.realtime.subscribeTypingStatus
 import chat.rocket.core.internal.realtime.unsubscribe
-import chat.rocket.core.internal.rest.chatRoomRoles
-import chat.rocket.core.internal.rest.commands
-import chat.rocket.core.internal.rest.deleteMessage
-import chat.rocket.core.internal.rest.getMembers
-import chat.rocket.core.internal.rest.history
-import chat.rocket.core.internal.rest.joinChat
-import chat.rocket.core.internal.rest.markAsRead
-import chat.rocket.core.internal.rest.messages
-import chat.rocket.core.internal.rest.pinMessage
-import chat.rocket.core.internal.rest.reportMessage
-import chat.rocket.core.internal.rest.runCommand
-import chat.rocket.core.internal.rest.searchMessages
-import chat.rocket.core.internal.rest.sendMessage
-import chat.rocket.core.internal.rest.spotlight
-import chat.rocket.core.internal.rest.starMessage
-import chat.rocket.core.internal.rest.toggleReaction
-import chat.rocket.core.internal.rest.unpinMessage
-import chat.rocket.core.internal.rest.unstarMessage
-import chat.rocket.core.internal.rest.updateMessage
-import chat.rocket.core.internal.rest.uploadFile
+import chat.rocket.core.internal.rest.*
 import chat.rocket.core.model.ChatRoom
 import chat.rocket.core.model.ChatRoomRole
 import chat.rocket.core.model.Command
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.Room
+import chat.rocket.core.model.block.elements.DatePickerElement
+import chat.rocket.core.model.block.elements.OverflowElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -1409,5 +1396,34 @@ class ChatRoomPresenter @Inject constructor(
                 analyticsManager.logMessageSent(SubscriptionTypeEvent.Channel)
             else -> analyticsManager.logMessageSent(SubscriptionTypeEvent.Group)
         }
+    }
+
+    fun sendRequestPayload(type: String, requestPayload: RequestPayload) {
+        launchUI(strategy) {
+            try {
+                client.sendRequestPayload(type, requestPayload)
+            } catch (ex: Exception) {
+                Timber.e(ex, "Error sending request payload")
+                ex.message?.let {
+                    view.showMessage(it)
+                }.ifNull {
+                    view.showGenericErrorMessage()
+                }
+            }
+        }
+    }
+
+    fun openOverflowElementOptions(element: OverflowElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+        navigator.toShowOverflowOptionsPage(element, data, listener)
+    }
+
+   fun openDatePickerDialog(dialogview: View, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+       launchUI(strategy) {
+           view.openDatePickerDialog(dialogview, datePickerElement, data, listener)
+       }
+   }
+
+    fun onDateSelected(selectedDate: String, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+        listener.onDateSelected(selectedDate, datePickerElement, data, listener)
     }
 }

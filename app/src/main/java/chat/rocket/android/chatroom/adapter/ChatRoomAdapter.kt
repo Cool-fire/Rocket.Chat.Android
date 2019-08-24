@@ -3,6 +3,7 @@ package chat.rocket.android.chatroom.adapter
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
@@ -10,18 +11,20 @@ import chat.rocket.android.chatroom.presentation.ChatRoomNavigator
 import chat.rocket.android.chatroom.ui.bottomsheet.COMPACT_CONFIGURATION
 import chat.rocket.android.chatroom.ui.bottomsheet.FULL_CONFIGURATION
 import chat.rocket.android.chatroom.ui.bottomsheet.TALL_CONFIGURATION
-import chat.rocket.android.chatroom.uimodel.AttachmentUiModel
-import chat.rocket.android.chatroom.uimodel.BaseUiModel
-import chat.rocket.android.chatroom.uimodel.MessageReplyUiModel
-import chat.rocket.android.chatroom.uimodel.MessageUiModel
-import chat.rocket.android.chatroom.uimodel.UrlPreviewUiModel
+import chat.rocket.android.chatroom.uimodel.*
 import chat.rocket.android.chatroom.uimodel.toViewType
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.openTabbedUrl
+import chat.rocket.core.internal.model.elementPayload.*
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
+import chat.rocket.core.model.block.elements.ButtonElement
+import chat.rocket.core.model.block.elements.DatePickerElement
+import chat.rocket.core.model.block.elements.OverflowElement
+import chat.rocket.core.model.block.objects.ConfirmObject
+import chat.rocket.core.model.block.objects.OptionObject
 import chat.rocket.core.model.isSystemMessage
 import timber.log.Timber
 import java.security.InvalidParameterException
@@ -75,6 +78,15 @@ class ChatRoomAdapter(
                     actionAttachmentOnClickListener
                 )
             }
+            BaseUiModel.ViewType.BLOCK -> {
+                val view = parent.inflate(R.layout.item_message_block)
+                BlockViewHolder(
+                        view,
+                        actionsListener,
+                        reactionListener,
+                        elementOnClicklistener
+                )
+            }
             BaseUiModel.ViewType.MESSAGE_REPLY -> {
                 val view = parent.inflate(R.layout.item_message_reply)
                 MessageReplyViewHolder(
@@ -123,6 +135,8 @@ class ChatRoomAdapter(
                 holder.bind(dataSet[position] as MessageReplyUiModel)
             is AttachmentViewHolder ->
                 holder.bind(dataSet[position] as AttachmentUiModel)
+            is BlockViewHolder ->
+                holder.bind(dataSet[position] as BlockUiModel)
         }
     }
 
@@ -131,6 +145,7 @@ class ChatRoomAdapter(
         return when (model) {
             is MessageUiModel -> model.messageId.hashCode().toLong()
             is AttachmentUiModel -> model.id
+            is BlockUiModel -> model.id
             else -> return position.toLong()
         }
     }
@@ -222,6 +237,95 @@ class ChatRoomAdapter(
             val newSize = dataSet.size
             notifyItemRangeRemoved(index, oldSize - newSize)
         }
+    }
+
+    private val elementOnClicklistener = object : BlockElementOnClicklistener {
+
+        override fun onDateSelected(selectedDate: String, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+            with(data) {
+                val botId = message.sender?.id ?: ""
+
+                val datePickerElementPayload = DatePickerElementPayload("datepicker", blockId, datePickerElement.actionId, selectedDate, datePickerElement.initialDate)
+                val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(datePickerElementPayload))
+                actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+            }
+        }
+
+        override fun onOverFlowOptionClicked(option: OptionObject, overflowElement: OverflowElement, data: BlockUiModel, view: View) {
+            with(data) {
+                val botId = message.sender?.id ?: ""
+
+                val selectedOption = OverflowOptionPayload(option.text, option.value)
+                val overflowElementPayload = OverflowElementPayload("overflow", blockId, overflowElement.actionId, selectedOption)
+                val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(overflowElementPayload))
+
+                if (overflowElement.confirm != null) {
+                    val confirm = overflowElement.confirm
+                    showConfirmationDialog(view, confirm, requestPayload)
+                } else {
+                    actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+                }
+            }
+        }
+
+        override fun onDatePickerElementClicked(view: View, datePickerElement: DatePickerElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener) {
+            actionSelectListener?.openDatePickerElement(view, datePickerElement, data, blockElementOnClicklistener)
+        }
+
+        override fun onOverflowElementClicked(view: View, element: OverflowElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener) {
+            actionSelectListener?.openOverflowElementOptions(element, data, blockElementOnClicklistener)
+        }
+
+        override fun onButtonElementClicked(view: View, element: ButtonElement, data: BlockUiModel) {
+            if(element.url != null) {
+                element.url?.let { view.openTabbedUrl(it) }
+            } else {
+                with(data) {
+                    val botId = message.sender?.id ?: ""
+
+                    val buttonElementPayload = ButtonElementPayload("button",blockId, element.actionId,element.text,element.value)
+                    val requestPayload = RequestPayload(messageId, message.roomId, botId, listOf(buttonElementPayload))
+
+                    if(element.confirm != null) {
+                        val confirm = element.confirm
+                        showConfirmationDialog(view, confirm, requestPayload)
+                    } else {
+                        actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun showConfirmationDialog(view: View, confirm: ConfirmObject?, requestPayload: RequestPayload) {
+        lateinit var title : String
+        lateinit var message : String
+        lateinit var confirmText : String
+        lateinit var denyText : String
+
+        confirm?.also {
+            title = it.title.text
+            message = it.text.text
+            confirmText = it.confirm.text
+            denyText = it.deny.text
+        }
+
+        val builder = AlertDialog.Builder(view.context)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setCancelable(true)
+
+        builder.setPositiveButton(confirmText) { dialog, which ->
+            actionSelectListener?.sendRequestPayload("block_actions", requestPayload)
+        }
+
+        builder.setNegativeButton(denyText) { dialog, which ->
+            dialog.dismiss()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private val actionAttachmentOnClickListener = object : ActionAttachmentOnClickListener {
@@ -388,5 +492,11 @@ class ChatRoomAdapter(
         fun openFullWebPage(roomId: String, url: String)
 
         fun openConfigurableWebPage(roomId: String, url: String, heightRatio: String)
+
+        fun openOverflowElementOptions(element: OverflowElement, data: BlockUiModel, listener: BlockElementOnClicklistener)
+
+        fun sendRequestPayload(type: String, requestPayload: RequestPayload)
+
+        fun openDatePickerElement(view: View, datePickerElement: DatePickerElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener)
     }
 }

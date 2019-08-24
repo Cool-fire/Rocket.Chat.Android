@@ -12,6 +12,10 @@ import chat.rocket.core.model.attachment.Color
 import chat.rocket.core.model.attachment.Field
 import chat.rocket.core.model.attachment.actions.Action
 import chat.rocket.core.model.attachment.actions.ButtonAction
+import chat.rocket.core.model.block.ActionBlock
+import chat.rocket.core.model.block.Block
+import chat.rocket.core.model.block.SectionBlock
+import chat.rocket.core.model.block.elements.ButtonElement
 import chat.rocket.core.model.messageTypeOf
 import chat.rocket.core.model.url.Meta
 import chat.rocket.core.model.url.ParsedUrl
@@ -53,7 +57,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 val reactions = this.reactions?.let { mapReactions(it) }
                 val attachments = this.attachments?.let { mapAttachments(it).asReversed() }
                 val messageType = messageTypeOf(this.message.type)
-
+                val blocks = this.blocks?.let { mapBlocks(it) }
                 list.add(
                     Message(
                         id = this.message.id,
@@ -73,6 +77,7 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                         mentions = mentions,
                         channels = channels,
                         attachments = attachments,
+                        blocks = blocks,
                         pinned = this.message.pinned,
                         starred = favorites,
                         reactions = reactions,
@@ -133,6 +138,43 @@ class DatabaseMessageMapper(private val dbManager: DatabaseManager) {
                 name = name
             )
         }
+    }
+
+
+    private fun mapBlocks(blocks: List<BlockEntity>): List<Block> {
+        val list = mutableListOf<Block>()
+        blocks.forEach { block ->
+            with(block) {
+                when(type) {
+                    "section" -> {
+                        text?.let {
+                            SectionBlock(
+                                    type = type,
+                                    text = it,
+                                    fields = null,
+                                    accessory = accessory,
+                                    blockId = blockId
+                            )
+                        }?.let {
+                            list.add(it)
+                        }
+                    }
+                    "actions" -> {
+                        elements?.let {
+                            list.add(
+                                    ActionBlock(
+                                    type = type,
+                                    blockId = blockId,
+                                    elements = it
+                                )
+                            )
+                        }
+                    }
+                    else -> null
+                }
+            }
+        }
+        return list
     }
 
     private suspend fun mapAttachments(attachments: List<AttachmentEntity>): List<Attachment> {

@@ -100,13 +100,15 @@ data class PartialMessage(
     var urls: List<UrlEntity>? = null
     @Relation(parentColumn = "id", entityColumn = "message_id")
     var attachments: List<AttachmentEntity>? = null
+    @Relation(parentColumn = "id", entityColumn = "message_id")
+    var blocks: List<BlockEntity>? = null
     @Relation(parentColumn = "id", entityColumn = "messageId")
     var reactions: List<ReactionEntity>? = null
     @Relation(parentColumn = "id", entityColumn = "messageId")
     var channels: List<MessageChannels>? = null
 
     override fun toString(): String {
-        return "PartialMessage(message=$message, senderName=$senderName, senderUsername=$senderUsername, editName=$editName, editUsername=$editUsername, urls=$urls, attachments=$attachments, reactions=$reactions, channels=$channels)"
+        return "PartialMessage(message=$message, senderName=$senderName, senderUsername=$senderUsername, editName=$editName, editUsername=$editUsername, urls=$urls, attachments=$attachments, blocks=$blocks, reactions=$reactions, channels=$channels)"
     }
 }
 

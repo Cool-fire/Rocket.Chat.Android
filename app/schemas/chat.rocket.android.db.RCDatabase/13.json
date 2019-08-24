@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "3bef73b44ae4edf2a74b48fd68f2c599",
+    "identityHash": "3b6b1796cb450359c26cc7f9105fa61a",
     "entities": [
       {
         "tableName": "users",
@@ -941,6 +941,295 @@
         ]
       },
       {
+        "tableName": "blocks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` TEXT NOT NULL, `message_id` TEXT NOT NULL, `block_type` TEXT, `block_id` TEXT, `has_accessory` INTEGER NOT NULL, `has_elements` INTEGER NOT NULL, `type` TEXT, `text` TEXT, `emoji` INTEGER, `verbatim` INTEGER, PRIMARY KEY(`_id`), FOREIGN KEY(`message_id`) REFERENCES `messages`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "_id",
+            "columnName": "_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "messageId",
+            "columnName": "message_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "block_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blockId",
+            "columnName": "block_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hasAccessory",
+            "columnName": "has_accessory",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasElements",
+            "columnName": "has_elements",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text.type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "text.text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "text.emoji",
+            "columnName": "emoji",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "text.verbatim",
+            "columnName": "verbatim",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "messages",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "message_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "block_button_element",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `blockId` TEXT NOT NULL, `type` TEXT NOT NULL, `actionId` TEXT NOT NULL, `block_type` TEXT, `url` TEXT, `value` TEXT, `style` TEXT, `button_type` TEXT NOT NULL, `button_text` TEXT NOT NULL, `button_emoji` INTEGER, `button_verbatim` INTEGER, `confirm_title_type` TEXT, `confirm_title_text` TEXT, `confirm_title_emoji` INTEGER, `confirm_title_verbatim` INTEGER, `confirm_text_type` TEXT, `confirm_text_text` TEXT, `confirm_text_emoji` INTEGER, `confirm_text_verbatim` INTEGER, `confirm_confirm_type` TEXT, `confirm_confirm_text` TEXT, `confirm_confirm_emoji` INTEGER, `confirm_confirm_verbatim` INTEGER, `confirm_deny_type` TEXT, `confirm_deny_text` TEXT, `confirm_deny_emoji` INTEGER, `confirm_deny_verbatim` INTEGER, FOREIGN KEY(`blockId`) REFERENCES `blocks`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blockId",
+            "columnName": "blockId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "actionId",
+            "columnName": "actionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockType",
+            "columnName": "block_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "style",
+            "columnName": "style",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "text.type",
+            "columnName": "button_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text.text",
+            "columnName": "button_text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text.emoji",
+            "columnName": "button_emoji",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "text.verbatim",
+            "columnName": "button_verbatim",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.title.type",
+            "columnName": "confirm_title_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.title.text",
+            "columnName": "confirm_title_text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.title.emoji",
+            "columnName": "confirm_title_emoji",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.title.verbatim",
+            "columnName": "confirm_title_verbatim",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.text.type",
+            "columnName": "confirm_text_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.text.text",
+            "columnName": "confirm_text_text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.text.emoji",
+            "columnName": "confirm_text_emoji",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.text.verbatim",
+            "columnName": "confirm_text_verbatim",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.confirm.type",
+            "columnName": "confirm_confirm_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.confirm.text",
+            "columnName": "confirm_confirm_text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.confirm.emoji",
+            "columnName": "confirm_confirm_emoji",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.confirm.verbatim",
+            "columnName": "confirm_confirm_verbatim",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.deny.type",
+            "columnName": "confirm_deny_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.deny.text",
+            "columnName": "confirm_deny_text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.deny.emoji",
+            "columnName": "confirm_deny_emoji",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "confirm.deny.verbatim",
+            "columnName": "confirm_deny_verbatim",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_block_button_element_blockId",
+            "unique": false,
+            "columnNames": [
+              "blockId"
+            ],
+            "createSql": "CREATE  INDEX `index_block_button_element_blockId` ON `${TABLE_NAME}` (`blockId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "blocks",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "blockId"
+            ],
+            "referencedColumns": [
+              "_id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "urls",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`urlId` INTEGER PRIMARY KEY AUTOINCREMENT, `messageId` TEXT NOT NULL, `url` TEXT NOT NULL, `hostname` TEXT, `title` TEXT, `description` TEXT, `imageUrl` TEXT, FOREIGN KEY(`messageId`) REFERENCES `messages`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -1111,7 +1400,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3bef73b44ae4edf2a74b48fd68f2c599\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3b6b1796cb450359c26cc7f9105fa61a\")"
     ]
   }
 }

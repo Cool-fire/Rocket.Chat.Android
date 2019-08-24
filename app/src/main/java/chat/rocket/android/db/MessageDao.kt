@@ -5,20 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import chat.rocket.android.db.model.AttachmentActionEntity
-import chat.rocket.android.db.model.AttachmentEntity
-import chat.rocket.android.db.model.AttachmentFieldEntity
-import chat.rocket.android.db.model.BaseMessageEntity
-import chat.rocket.android.db.model.FullMessage
-import chat.rocket.android.db.model.PartialMessage
-import chat.rocket.android.db.model.MessageChannels
-import chat.rocket.android.db.model.MessageEntity
-import chat.rocket.android.db.model.MessageFavoritesRelation
-import chat.rocket.android.db.model.MessageMentionsRelation
-import chat.rocket.android.db.model.MessagesSync
-import chat.rocket.android.db.model.ReactionEntity
-import chat.rocket.android.db.model.UrlEntity
-import chat.rocket.android.db.model.UserEntity
+import chat.rocket.android.db.model.*
 import timber.log.Timber
 @Dao
 abstract class  MessageDao {
@@ -45,6 +32,12 @@ abstract class  MessageDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(url: UrlEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insert(action: AttachmentActionEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insert(action: BlockEntity)
 
     @Query("DELETE FROM messages WHERE id = :id")
     abstract fun delete(id: String)
@@ -74,8 +67,10 @@ abstract class  MessageDao {
             is MessageChannels -> insert(entity)
             is AttachmentEntity -> insert(entity)
             is AttachmentFieldEntity -> insert(entity)
+            is AttachmentActionEntity -> insert(entity)
             is ReactionEntity -> insert(entity)
             is UrlEntity -> insert(entity)
+            is BlockEntity -> insert(entity)
         }
     }
 
@@ -186,6 +181,7 @@ abstract class  MessageDao {
             FROM messages
             LEFT JOIN urls as u ON u.messageId = messages.id
             LEFT JOIN attachments as attachment ON attachment.message_id = messages.id
+            LEFT JOIN blocks as block ON block.message_id = messages.id
             LEFT JOIN reactions ON reactions.messageId = messages.id
             LEFT JOIN message_channels ON message_channels.messageId = messages.id
 			LEFT JOIN users as senderBy ON messages.senderId = senderBy.id

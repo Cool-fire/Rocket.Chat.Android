@@ -1,6 +1,7 @@
 package chat.rocket.android.chatroom.ui
 
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -17,10 +18,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
@@ -35,19 +33,13 @@ import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.analytics.event.ScreenViewEvent
-import chat.rocket.android.chatroom.adapter.AttachmentViewHolder
-import chat.rocket.android.chatroom.adapter.ChatRoomAdapter
-import chat.rocket.android.chatroom.adapter.CommandSuggestionsAdapter
-import chat.rocket.android.chatroom.adapter.EmojiSuggestionsAdapter
-import chat.rocket.android.chatroom.adapter.MessageViewHolder
-import chat.rocket.android.chatroom.adapter.PEOPLE
-import chat.rocket.android.chatroom.adapter.PeopleSuggestionsAdapter
-import chat.rocket.android.chatroom.adapter.RoomSuggestionsAdapter
+import chat.rocket.android.chatroom.adapter.*
 import chat.rocket.android.chatroom.presentation.ChatRoomNavigator
 import chat.rocket.android.chatroom.presentation.ChatRoomPresenter
 import chat.rocket.android.chatroom.presentation.ChatRoomView
 import chat.rocket.android.chatroom.ui.bottomsheet.MessageActionsBottomSheet
 import chat.rocket.android.chatroom.uimodel.BaseUiModel
+import chat.rocket.android.chatroom.uimodel.BlockUiModel
 import chat.rocket.android.chatroom.uimodel.MessageUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.ChatRoomSuggestionUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.CommandSuggestionUiModel
@@ -88,7 +80,10 @@ import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.util.extensions.ui
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.roomTypeOf
+import chat.rocket.core.internal.model.elementPayload.RequestPayload
 import chat.rocket.core.internal.realtime.socket.model.State
+import chat.rocket.core.model.block.elements.DatePickerElement
+import chat.rocket.core.model.block.elements.OverflowElement
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
@@ -106,6 +101,8 @@ import kotlinx.android.synthetic.main.reaction_praises_list_item.view.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.lang.Exception
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -150,7 +147,7 @@ private const val BUNDLE_CHAT_ROOM_IS_FAVORITE = "chat_room_is_favorite"
 private const val BUNDLE_CHAT_ROOM_MESSAGE = "chat_room_message"
 
 class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiReactionListener,
-    ChatRoomAdapter.OnActionSelected, Drawable.Callback {
+    ChatRoomAdapter.OnActionSelected, Drawable.Callback{
     @Inject
     lateinit var presenter: ChatRoomPresenter
     @Inject
@@ -214,6 +211,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
     internal val audioVideoAttachment by lazy { dialogView.findViewById<FrameLayout>(R.id.audio_video_attachment) }
     internal val textFile by lazy { dialogView.findViewById<TextView>(R.id.text_file_name) }
     private var takenPhotoUri: Uri? = null
+    private var calendar = Calendar.getInstance()
 
     private val layoutChangeListener =
         View.OnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
@@ -394,6 +392,9 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         presenter.openConfigurableWebPage(roomId, url, heightRatio)
     }
 
+    override fun openOverflowElementOptions(element: OverflowElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+        presenter.openOverflowElementOptions(element, data, listener)
+    }
 
     override fun showMessages(dataSet: List<BaseUiModel<*>>, clearDataSet: Boolean) {
         ui {
@@ -1261,6 +1262,41 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
             messageId = id,
             description = "This message was reported by a user from the Android app"
         )
+    }
+
+    override fun sendRequestPayload(type: String, requestPayload: RequestPayload) {
+        presenter.sendRequestPayload(
+                type,
+                requestPayload
+        )
+    }
+
+    override fun openDatePickerDialog(dialogview: View, datePickerElement: DatePickerElement, data: BlockUiModel, listener: BlockElementOnClicklistener) {
+
+        val initialDate = datePickerElement.initialDate
+
+        val datelistener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+            val selectedDate = "$year-$month-$dayOfMonth"
+            presenter.onDateSelected(selectedDate, datePickerElement, data, listener)
+        }
+
+        if(initialDate != null) {
+            try{
+                val dates = initialDate.split("-")
+                if(dates.size == 3) {
+                    DatePickerDialog(context, datelistener, dates[0].toInt(), dates[1].toInt(), dates[2].toInt()).show()
+                }
+            } catch (ex: Exception) {
+                showGenericErrorMessage()
+            }
+        } else {
+            val datepicker = DatePickerDialog(context, datelistener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH) )
+            datepicker.show()
+        }
+    }
+
+    override fun openDatePickerElement(view: View, datePickerElement: DatePickerElement, data: BlockUiModel, blockElementOnClicklistener: BlockElementOnClicklistener) {
+        presenter.openDatePickerDialog(view, datePickerElement, data, blockElementOnClicklistener)
     }
 
     fun openEmojiKeyboard() {

@@ -54,6 +54,7 @@ class OptionsBottomSheet: BottomSheetDialogFragment(){
             option.url?.let { view.openTabbedUrl(it) }
         } else {
             listener.onOverFlowOptionClicked(option, overflowElement, data, view)
+            this.dismiss()
         }
     }
 
